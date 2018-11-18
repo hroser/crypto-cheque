@@ -1,0 +1,200 @@
+<!doctype html>
+
+<html lang="de">
+
+<style type="text/css">
+
+body {
+font: 10px sans-serif;
+max-width: 800px;
+margin: 0 auto;
+}
+
+textarea {
+width: 94%;
+resize: none;
+overflow: hidden;
+min-height: 25px;
+margin-left: 3%;
+}
+
+.title{
+width: 94%;
+font: 30px sans-serif;
+font-weight: bold;
+text-align: center;
+margin-left: 3%;
+}
+
+.error {
+color: red;
+font: 11px sans-serif;
+}
+
+.url-available {
+color: green;
+font: 11px sans-serif;
+}
+
+.center {
+margin: 0 auto;
+text-align: center;
+}
+
+.centertable {
+width: 90%;
+max-width: 520px;
+margin: 0 auto;
+}
+
+.centerinfo {
+width: 90%;
+max-width: 520px;
+margin: 0 auto;
+font: 12px sans-serif;
+}
+
+.centertopinfo {
+width: 90%;
+max-width: 520px;
+margin: 0 auto;
+font: 16px sans-serif;
+}
+
+.formatting-info {
+width: 94%;
+height: 10px;
+margin: 0 auto;
+font: 13px sans-serif;
+}
+
+table, tr, td {
+    border: none;
+}
+
+img {
+max-width: 90%;
+}
+
+.createpagelabel {
+display: inline-block;
+vertical-align:top;
+width: 230px;
+}
+
+.createpageinput {
+display: inline-block;
+vertical-align:top;
+width: 280px;
+margin-bottom: 15px
+}
+	
+.rotate {
+/* Safari */
+-webkit-transform: rotate(90deg);
+
+/* Firefox */
+-moz-transform: rotate(90deg);
+
+/* IE */
+-ms-transform: rotate(90deg);
+
+/* Opera */
+-o-transform: rotate(90deg);
+
+font-family: monospace;
+font-size: 7px;
+}
+
+.strip {
+font-family: monospace;
+font-size: 7px;
+white-space:pre;
+}
+
+</style>
+
+
+<head>
+	<meta charset="utf-8">
+	<link rel="shortcut icon" href="/favicon.ico">
+	<title>Crypto Cheque</title>
+	<meta name="description" content="">
+	<meta name="keywords" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style type="text/css"></style>
+	
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-109506841-1"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+	
+	  gtag('config', 'UA-109506841-1');
+	  gtag('config', 'AW-960369895');
+	</script>
+
+
+
+</head>
+
+<body onload="window.print();">
+
+	{% for cheque_data in cheque_dates %}
+	
+	<hr>
+	<div style="width: 100%;">
+        <div style="width: 68%; float:left">
+						<h2>Crypto Cheque</h2>
+            <h4>ID: {{ cheque_data['ident'] }}</h4>
+					  <br>
+            To: ____________________________________________ Value: __________________<br><br><br><br>
+            From: ____________________________________________<br><br><br><br>
+            Memo: ____________________________________________<br><br><br><br>
+            Date: __________________________   Signature: __________________________<br><br><br>
+            <div class="strip">
+VERIFICATION:
+							
+{{cheque_data['verification_bars'][0]}}  {{cheque_data['verification_bars'][2]}}  
+{{cheque_data['verification_bars'][1]}}  {{cheque_data['verification_bars'][3]}}
+            </div>
+            <br>
+        </div>
+        
+        <div style="width: 20%; float:left">
+        <center>
+					 <br><br>
+           <small>DEPOSIT BTC:</small><br><br>
+           <img src="http://api.qrserver.com/v1/create-qr-code/?size=80x80&data={{cheque_data['cheque'].public_address}}" alt="" title=""><br>
+           <span style="font-size: 7px !important;">{{cheque_data['cheque'].public_address}}</span><br><br><br>
+           <small>CHECK BALANCE:</small><br><br>
+           <img src="http://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://live.blockcypher.com/btc/address/{{cheque_data['cheque'].public_address}}/" alt="" title=""><br>
+           <span style="font-size: 8px !important;">Redeem at www.crypto-cheque.com</span><br><br>
+        </center>
+        </div>
+        
+        <div style="width: 12%; float:left">
+        <center>
+						<br><br>
+            <small>VERIFICATION: </small><br><br><br><br>
+            <div class="rotate">
+            {{cheque_data['verification_chars'][0]}}
+            <br><br>
+            {{cheque_data['verification_chars'][1]}}
+            <br><br>
+            {{cheque_data['verification_chars'][2]}}
+            <br><br>
+            {{cheque_data['verification_chars'][3]}}
+            </div>
+        </center>
+        </div>
+    </div>
+  <br>
+	<br clear="all" />
+	
+  {% endfor %}
+	<hr>
+	<br>
+</body>
+</html>

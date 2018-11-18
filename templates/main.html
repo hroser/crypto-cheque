@@ -1,0 +1,156 @@
+<!doctype html>
+
+<html lang="de">
+
+<style type="text/css">
+
+body {
+font-family: sans-serif;
+max-width: 640px;
+margin: 0 auto;
+}
+
+textarea {
+width: 94%;
+resize: none;
+overflow: hidden;
+min-height: 25px;
+margin-left: 3%;
+}
+
+.title{
+width: 94%;
+font: 30px sans-serif;
+font-weight: bold;
+text-align: center;
+margin-left: 3%;
+}
+
+.error {
+color: red;
+font: 11px sans-serif;
+}
+
+.url-available {
+color: green;
+font: 11px sans-serif;
+}
+
+.center {
+margin: 0 auto;
+text-align: center;
+}
+
+.centertable {
+width: 90%;
+max-width: 520px;
+margin: 0 auto;
+}
+
+.centerinfo {
+width: 90%;
+max-width: 520px;
+margin: 0 auto;
+font: 12px sans-serif;
+}
+
+.centertopinfo {
+width: 90%;
+max-width: 520px;
+margin: 0 auto;
+font: 16px sans-serif;
+}
+
+.formatting-info {
+width: 94%;
+height: 10px;
+margin: 0 auto;
+font: 13px sans-serif;
+}
+
+table, tr, td {
+    border: none;
+}
+
+img {
+max-width: 90%;
+}
+
+.createpagelabel {
+display: inline-block;
+vertical-align:top;
+width: 230px;
+}
+
+.createpageinput {
+display: inline-block;
+vertical-align:top;
+width: 280px;
+margin-bottom: 15px
+}
+
+</style>
+
+
+<head>
+	<meta charset="utf-8">
+	<link rel="shortcut icon" href="/favicon.ico">
+	<title>Crypto Cheque</title>
+	<meta name="description" content="">
+	<meta name="keywords" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style type="text/css"></style>
+	
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-109506841-1"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+	
+	  gtag('config', 'UA-109506841-1');
+	  gtag('config', 'AW-960369895');
+	</script>
+
+
+
+</head>
+
+<body>
+
+<h1 align="center">Crypto Cheque</h1>
+		
+	<form id="check_balance_form" method="POST" enctype="multipart/form-data">
+		Enter cheque ID:
+		<br><br>
+    <input type="text" style="font: 16px sans-serif; width: 260px;" name="cheque_ident" value="{{cheque_ident}}">
+		<input type="submit" name="check_balance" value="Check balance">
+		<br><br>
+		{% if cheque_balance != None %}
+        ID: {{cheque_ident}}<br>
+				Balance: {{cheque_balance}}<br>
+				Verification code {{verification_index_chars}}: <input type="text" style="font: 16px sans-serif; width: 260px;" name="verification_code" value="{{verification_code}}"><br>
+				Send balance to BTC address: <input type="text" style="font: 16px sans-serif; width: 260px;" name="receiver_address" value="{{receiver_address}}">
+				<input type="hidden" name="verification_index" value="{{verification_index}}">
+				<input type="submit" name="redeem" value="Redeem">
+				<br><br>
+    {% endif %}
+		
+		</center>
+		<br>
+	</div>
+		<br>
+		<a href="/print" style="color: black;">Print Crypto Cheques</a> 
+		<br>
+	</form>
+	
+		<div class="centerinfo">
+		<br><br>
+		If there are any issues, please contact us:
+		<br>
+		<a href="mailto:@gmail.com" style="color: black;">@gmail.com</a> 
+		</div>
+
+	<br><br><br><br>
+</body>
+</html>
