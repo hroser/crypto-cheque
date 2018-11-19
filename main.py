@@ -110,31 +110,33 @@ class MainPage(Handler):
 		redeem = self.request.get('redeem')
 		cheque_ident = self.request.get('cheque_ident')
 		cheque_ident_filtered = filter(lambda x: x.isdigit(), cheque_ident)
+		cheque_ident_formatted = '-'.join([cheque_ident_filtered[i:i+5] for i in range(0, len(cheque_ident_filtered), 5)])
 		receiver_address = self.request.get('receiver_address')
 		verification_index = self.request.get('verification_index')
 		verification_code = self.request.get('verification_code')
 		
+		verification_index_list = []
+		base = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+		for i in range(4):
+			for j in range(4):
+				verification_index_list.append(base[i]+base[j+4])
+		verification_index = random.randint(0,15)
+		verification_index_chars = verification_index_list[verification_index]
+		
+		cheque_balance = cryptotools.get_balance(cheque_ident_filtered)
+		
 		if check_balance:
-			cheque_balance = cryptotools.get_balance(cheque_ident_filtered)
 			# render main page
 			if cheque_balance is not None:
-				cheque_ident_formatted = '-'.join([cheque_ident_filtered[i:i+5] for i in range(0, len(cheque_ident_filtered), 5)])
-				
-				verification_index_list = []
-				base = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
-				for i in range(4):
-					for j in range(4):
-						verification_index_list.append(base[i]+base[j+4])
-				
-				verification_index = random.randint(0,15)
-				verification_index_chars = verification_index_list[verification_index]
 				self.render('main.html', cheque_ident = cheque_ident_formatted, cheque_balance = cheque_balance, verification_index_chars = verification_index_chars, verification_index = verification_index)
 			else:
 				self.render('main.html', cheque_ident = cheque_ident, cheque_balance = cheque_balance)
 		elif redeem:
-            
-			result = cryptotools.redeem(cheque_ident_filtered, verification_code, verification_index, receiver_address)
-			self.render('main.html', cheque_ident = cheque_ident, redeem_transaction = result)
+			error_code, message = cryptotools.redeem(cheque_ident_filtered, verification_code, verification_index, receiver_address)
+			if error_code == 0:
+				self.render('main.html', cheque_ident = cheque_ident_formatted, cheque_balance = 0.0, redeem_transaction = message)
+			else:
+				self.render('main.html', cheque_ident = cheque_ident_formatted, cheque_balance = cheque_balance, verification_index_chars = verification_index_chars, verification_index = verification_index, error_message = str(error_code) + ': ' + message)
 		
 		
 		

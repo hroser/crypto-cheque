@@ -46,7 +46,7 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
     medium_fees = int(get_blockchain_overview()['medium_fee_per_kb'])
     transaction_fee = int(medium_fees*0.5)
   except:
-    return 101
+    return 101, 'error get_blockchain_overview'
   
   # get balance
   try:
@@ -56,10 +56,10 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
     payout = int(balance - service_fee - transaction_fee)
     preference = 'low'
   except:
-    return 102
+    return 102, 'error get balance'
 
-  if payout <= 0:
-    return 103
+  if payout <= 1000:
+    return 103, 'error payout <= 1000 satoshis'
   
   # create unsigned transaction
   inputs = [{'address': public_address_sender}]
@@ -67,7 +67,7 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
   try:
     unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference=preference)
   except:
-    return 104
+    return 104, 'error create_unsigned_tx'
   
   # sign transaction
   privkey_list = [private_key_sender]
@@ -75,21 +75,21 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
   try:
     tx_signatures = make_tx_signatures(txs_to_sign=unsigned_tx['tosign'], privkey_list=privkey_list, pubkey_list=pubkey_list)
   except:
-    return 105
+    return 105, 'error make_tx_signatures'
   
   if 'errors' in tx_signatures:
-    return 106
+    return 106, tx_signatures['errors']
   
   # push transaction
   try:
     broadcasted = broadcast_signed_transaction(unsigned_tx=unsigned_tx, signatures=tx_signatures, pubkeys=pubkey_list, coin_symbol='btc', api_key=api_key)
   except:
-    return 107
+    return 107, 'error broadcast_signed_transaction'
   
   if 'errors' in broadcasted:
-    return broadcasted
+    return 108, broadcasted['errors']
   
-  return broadcasted
+  return 0, broadcasted['tx']['hash']
   
 def get_balance(ident):
   #logging.debug('getting balance for ident ' + ident)
@@ -123,13 +123,14 @@ def redeem(ident, verification_code, verification_index, receiver_address):
   #try:
   private_key_sender = decrypt(cheque.private_key_encrypted, ident+verification_code_base)
   logging.debug('private_key_sender ' + private_key_sender)
-  result = send_tx(private_key_sender, cheque.public_key, cheque.public_address, receiver_address)
-  logging.debug('result ' + str(result))
+  error_code, message = send_tx(private_key_sender, cheque.public_key, cheque.public_address, receiver_address)
+  logging.debug('error_code ' + str(error_code))
+  logging.debug('message ' + str(message))
     #address_overview = get_address_overview(cheque.public_address)
   #except:
     #return sys.exc_info()[0]
     #return 'redeem error'
-  return str(result)
+  return error_code, message
     
 def base58encode(n):
     result = ''

@@ -136,12 +136,17 @@ margin-bottom: 15px
 				<input type="submit" name="redeem" value="Redeem">
                 {% endif %}
 				<br><br>
-                {% if redeem_transaction != None %}
-                {{redeem_transaction}}
+                {% if redeem_transaction %}
+                Successfully redeemed:<br>
+                <a href="https://live.blockcypher.com/btc/tx/{{redeem_transaction}}/" style="color: black;">Show transaction</a> 
                 <br><br>
                 {% endif %}
         {% endif %}
-		
+		{% if error_message %}
+        <br><br>
+        <font color="red">{{error_message}}</font>
+        <br><br>
+        {% endif %}
 		</center>
 		<br>
 	</div>
