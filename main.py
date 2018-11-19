@@ -133,25 +133,44 @@ class MainPage(Handler):
 			# render main page
 			if cheque_balance is not None:
 				logging.debug('cheque_balance is not None ' + str(cheque_ident))
-				self.render('main.html', cheque_ident = cheque_ident_formatted, cheque_ident_requested = cheque_ident_formatted, cheque_public_address = cheque_public_address, cheque_balance = cheque_balance, verification_index_chars = verification_index_chars, verification_index = verification_index_new)
+				self.render('main.html', 
+					cheque_ident = cheque_ident_formatted, 
+					cheque_ident_requested = cheque_ident_formatted, 
+					cheque_public_address = cheque_public_address, 
+					cheque_balance = cheque_balance, 
+					verification_index_chars = verification_index_chars, 
+					verification_index = verification_index_new)
 			else:
 				logging.debug('cheque_balance is None ' + str(cheque_ident))
 				if len(cheque_ident_filtered) == 15:
-					self.render('main.html', cheque_ident = cheque_ident, cheque_ident_requested = cheque_ident_formatted, cheque_balance = 0.0)
+					self.render('main.html', 
+						cheque_ident = cheque_ident, 
+						cheque_ident_requested = cheque_ident_formatted, 
+						cheque_balance = 0.0)
 				else:
-					self.render('main.html', cheque_ident = cheque_ident, cheque_ident_requested = 'invalid', cheque_balance = 0.0)
+					self.render('main.html', 
+						cheque_ident = cheque_ident, 
+						cheque_ident_requested = 'invalid', 
+						cheque_balance = 0.0)
 		elif redeem:
 			error_code, message = cryptotools.redeem(cheque_ident_requested_filtered, verification_code, verification_index_request, receiver_address)
 			if error_code == 0:
-				self.render('main.html', cheque_ident = cheque_ident_formatted, cheque_ident_requested = cheque_ident_formatted, cheque_public_address = cheque_public_address, cheque_balance = 0.0, redeem_transaction = message)
+				self.render('main.html', 
+					cheque_ident = cheque_ident_formatted, 
+					cheque_ident_requested = cheque_ident_formatted, 
+					cheque_public_address = cheque_public_address, 
+					cheque_balance = 0.0, 
+					redeem_transaction = message)
 			else:
-				self.render('main.html', cheque_ident = cheque_ident_formatted, cheque_ident_requested = cheque_ident_formatted, cheque_public_address = cheque_public_address, cheque_balance = cheque_balance, verification_index_chars = verification_index_chars, verification_index = verification_index_new, error_message = str(error_code) + ': ' + message)
-		
-		
-		
-		
-		 
-		
+				self.render('main.html', 
+					cheque_ident = cheque_ident_formatted, 
+					cheque_ident_requested = cheque_ident_formatted, 
+					cheque_public_address = cheque_public_address, 
+					cheque_balance = cheque_balance, 
+					verification_index_chars = verification_index_chars, 
+					verification_index = verification_index_new, 
+					error_message = str(error_code) + ': ' + message)
+			
 app = webapp2.WSGIApplication([
     webapp2.Route(r'/print', handler = PrintChequesPage),
     webapp2.Route(r'/', handler = MainPage),
