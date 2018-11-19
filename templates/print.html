@@ -165,12 +165,13 @@ VERIFICATION:
         <div style="width: 20%; float:left">
         <center>
 					 <br><br>
-           <small>DEPOSIT BTC:</small><br><br>
+		   <p style="margin-bottom:5px; margin-top:0mm;"><small>DEPOSIT BTC:</small></p>
            <img src="http://api.qrserver.com/v1/create-qr-code/?size=80x80&data={{cheque_data['cheque'].public_address}}" alt="" title=""><br>
-           <span style="font-size: 7px !important;">{{cheque_data['cheque'].public_address}}</span><br><br><br>
-           <small>CHECK BALANCE:</small><br><br>
-           <img src="http://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://live.blockcypher.com/btc/address/{{cheque_data['cheque'].public_address}}/" alt="" title=""><br>
-           <span style="font-size: 8px !important;">Redeem at www.crypto-cheque.com</span><br><br>
+           <span style="font-size: 6px !important;">{{cheque_data['cheque'].public_address}}</span><br><br><br>
+           <p style="margin-bottom:5px; margin-top:0mm;"><small>CHECK BALANCE:</small></p>
+           <img src="http://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://live.blockcypher.com/btc/address/{{cheque_data['cheque'].public_address}}/" alt="" title=""><br><br>
+           <p style="margin-bottom:3px; margin-top:0mm;"><small>REDEEM:</small></p>
+		   <span style="font-size: 10px !important; margin-top:0mm;">www.crypto-cheque.com</span><br><br>
         </center>
         </div>
         

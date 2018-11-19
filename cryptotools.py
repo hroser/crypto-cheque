@@ -108,7 +108,7 @@ def get_balance(ident):
 def redeem(ident, verification_code, verification_index, receiver_address):
   logging.debug('redeeming ')
   logging.debug('verification_code ' + verification_code)
-  logging.debug('verification_index ' + verification_index)
+  logging.debug('verification_index ' + str(verification_index))
   logging.debug('receiver_address ' + receiver_address)
   ident_hash256 = hashlib.sha256(ident).hexdigest()
   logging.debug('ident_hash256 ' + ident_hash256)
