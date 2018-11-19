@@ -19,10 +19,11 @@ from blockcypher import broadcast_signed_transaction
 from blockcypher import get_blockchain_overview
 
 BLOCK_SIZE = 16
+SERVICE_FEE = 0.015
+
 b58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
 unpad = lambda s: s[:-ord(s[len(s) - 1:])]
-
 base_index_characters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 
 # load keys from keyfile 
@@ -41,33 +42,32 @@ class Cheque(ndb.Model):
     verification_shifts = ndb.StringProperty()
 
 def send_tx(private_key_sender, public_key_sender, public_address_sender, public_address_receiver):
-  # get fees
-  try:
-    medium_fees = int(get_blockchain_overview()['medium_fee_per_kb'])
-    transaction_fee = int(medium_fees*0.5)
-  except:
-    return 101, 'error get_blockchain_overview'
-  
   # get balance
   try:
     addr_overview = get_address_overview(public_address_sender)
     balance = int(addr_overview['final_balance'])
-    service_fee = max(1000, int(balance * 0.015))   # lower limit for transaction is 546 satoshis 
+    
+    service_fee, transaction_fee = get_fees(balance)
+    
+    if transaction_fees == 0:
+      return 103, 'Error: Balance too low for payout. Minimum payout amout is {:.8f} BTC.'.format(float(intget_blockchain_overview()['low_fee_per_kb'])/100000000)
+    
     payout = int(balance - service_fee - transaction_fee)
     preference = 'low'
   except:
-    return 102, 'error get balance'
-
-  if payout <= 1000:
-    return 103, 'error payout <= 1000 satoshis'
+    return 102, 'API error 102.'
   
   # create unsigned transaction
   inputs = [{'address': public_address_sender}]
-  outputs = [{'address': public_address_receiver, 'value': payout}, {'address': addr_service_fee, 'value': service_fee}]
+  if service_fee > 0:
+    outputs = [{'address': public_address_receiver, 'value': payout}, {'address': addr_service_fee, 'value': service_fee}]
+  else:
+    outputs = [{'address': public_address_receiver, 'value': payout}]
+  
   try:
     unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference=preference)
   except:
-    return 104, 'error create_unsigned_tx'
+    return 104, 'API error 104.'
   
   # sign transaction
   privkey_list = [private_key_sender]
@@ -75,19 +75,19 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
   try:
     tx_signatures = make_tx_signatures(txs_to_sign=unsigned_tx['tosign'], privkey_list=privkey_list, pubkey_list=pubkey_list)
   except:
-    return 105, 'error make_tx_signatures'
+    return 105, 'Verification error.'
   
   if 'errors' in tx_signatures:
-    return 106, tx_signatures['errors']
+    return 106, 'API error 106.'
   
   # push transaction
   try:
     broadcasted = broadcast_signed_transaction(unsigned_tx=unsigned_tx, signatures=tx_signatures, pubkeys=pubkey_list, coin_symbol='btc', api_key=api_key)
   except:
-    return 107, 'error broadcast_signed_transaction'
+    return 107, 'API error 107.'
   
   if 'errors' in broadcasted:
-    return 108, broadcasted['errors']
+    return 108, 'API error 108.'
   
   return 0, broadcasted['tx']['hash']
   
@@ -103,7 +103,39 @@ def get_balance(ident):
   except Exception as e:
     logging.error(e)
     return None, None
-  return float(address_overview['final_balance'])/100000000, cheque.public_address
+  return address_overview['final_balance'], cheque.public_address
+
+def get_fees(balance):
+  if (balance is None) or (balance == 0):
+    return 0, 0
+  
+  try:
+    medium_fees = int(get_blockchain_overview()['medium_fee_per_kb'])
+    low_fees = int(get_blockchain_overview()['low_fee_per_kb'])
+    transaction_fee = int(medium_fees*0.5)
+  except:
+    return 0, 0
+  
+  if int(balance * SERVICE_FEE) < 1000:
+    service_fee = 0
+  else:
+    service_fee = int(balance * SERVICE_FEE)   # lower limit for transaction is 546 satoshis
+      
+  if balance <= (transaction_fee + service_fee):
+    service_fee = 0
+    if balance > low_fees:      
+      transaction_fee = int(low_fees)
+    else:
+      transaction_fee = 0
+      
+  return service_fee, transaction_fee
+
+def validate_btc_address(address):
+  try:
+    address_overview = get_address_overview(address)
+  except Exception as e:
+    return False
+  return True
 
 def redeem(ident, verification_code, verification_index, receiver_address):
   logging.debug('redeeming ')
@@ -310,6 +342,8 @@ def verification_master_encrypt(verification_master, index_digits):
 
 def verification_master_decrypt(encrypted, index_digits):
   result = ''
+  if len(encrypted) != 6:
+    return result
   for i in range(6):
     n = ord(encrypted[i])
     # capital letters

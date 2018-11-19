@@ -130,16 +130,19 @@ margin-bottom: 15px
                 ID: {{cheque_ident_requested}}<br>
 				Balance: {{cheque_balance}} BTC 
 				{% if cheque_public_address %}
-                (<a href="https://live.blockcypher.com/btc/address/{{cheque_public_address}}/" target="_blank" style="color: black;">show details</a>)
-                {% endif %}
+        (<a href="https://live.blockcypher.com/btc/address/{{cheque_public_address}}/" target="_blank" style="color: black;">show details</a>)
+        {% endif %}
 				<br>
-                {% if cheque_balance != 0 %}
+        {% if cheque_balance != 0 %}
+				Service fee: {{service_fee}} BTC<br>
+				Transaction fee: {{transaction_fee}} BTC<br>
+				Total payout: {{total_payout}} BTC<br>
 				Send balance to BTC address: <input type="text" style="font: 16px sans-serif; width: 260px;" name="receiver_address" value="{{receiver_address}}">
 				Verification code {{verification_index_chars}}: <input type="text" style="font: 16px sans-serif; width: 260px;" name="verification_code" value="{{verification_code}}"><br>
 				<input type="hidden" name="cheque_ident_requested" value="{{cheque_ident_requested}}">
 				<input type="hidden" name="verification_index" value="{{verification_index}}">
 				<input type="submit" name="redeem" value="Redeem">
-                {% endif %}
+        {% endif %}
 				<br><br>
 				
                 {% if redeem_transaction %}

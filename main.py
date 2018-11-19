@@ -116,6 +116,7 @@ class MainPage(Handler):
 		receiver_address = self.request.get('receiver_address')
 		verification_index_request = self.request.get('verification_index')
 		verification_code = self.request.get('verification_code')
+		verification_code_filtered = filter(lambda x: x.isalpha(), verification_code)
 		
 		
 		verification_index_list = []
@@ -127,21 +128,34 @@ class MainPage(Handler):
 		verification_index_chars = verification_index_list[verification_index_new]
 		
 		cheque_balance, cheque_public_address = cryptotools.get_balance(cheque_ident_filtered)
-		logging.debug('cheque_balance ' + str(cheque_balance))
+		
+		if cheque_balance and (cheque_balance > 0):
+			service_fee, transaction_fee = cryptotools.get_fees(cheque_balance)
+			total_payout = cheque_balance - service_fee - transaction_fee
+			
+			cheque_balance = float(cheque_balance)/100000000
+			service_fee = float(service_fee)/100000000
+			transaction_fee = float(transaction_fee)/100000000
+			total_payout = float(total_payout)/100000000
+		else:
+			service_fee = 0.0
+			transaction_fee = 0.0
+			total_payout = 0.0
 		
 		if check_balance:
 			# render main page
 			if cheque_balance is not None:
-				logging.debug('cheque_balance is not None ' + str(cheque_ident))
 				self.render('main.html', 
 					cheque_ident = cheque_ident_formatted, 
 					cheque_ident_requested = cheque_ident_formatted, 
 					cheque_public_address = cheque_public_address, 
 					cheque_balance = cheque_balance, 
 					verification_index_chars = verification_index_chars, 
-					verification_index = verification_index_new)
+					verification_index = verification_index_new,
+					service_fee = service_fee,
+					transaction_fee = transaction_fee,
+					total_payout = total_payout)
 			else:
-				logging.debug('cheque_balance is None ' + str(cheque_ident))
 				if len(cheque_ident_filtered) == 15:
 					self.render('main.html', 
 						cheque_ident = cheque_ident, 
@@ -153,7 +167,11 @@ class MainPage(Handler):
 						cheque_ident_requested = 'invalid', 
 						cheque_balance = 0.0)
 		elif redeem:
-			error_code, message = cryptotools.redeem(cheque_ident_requested_filtered, verification_code, verification_index_request, receiver_address)
+			if cryptotools.validate_btc_address(receiver_address):
+				error_code, message = cryptotools.redeem(cheque_ident_requested_filtered, verification_code_filtered, verification_index_request, receiver_address)
+			else:
+				error_code = 201
+				message = 'Receiver address is no valid Bitcoin address.'
 			if error_code == 0:
 				self.render('main.html', 
 					cheque_ident = cheque_ident_formatted, 
@@ -169,7 +187,11 @@ class MainPage(Handler):
 					cheque_balance = cheque_balance, 
 					verification_index_chars = verification_index_chars, 
 					verification_index = verification_index_new, 
-					error_message = str(error_code) + ': ' + message)
+					receiver_address = receiver_address,
+					service_fee = service_fee,
+					transaction_fee = transaction_fee,
+					total_payout = total_payout,
+					error_message = message)
 			
 app = webapp2.WSGIApplication([
     webapp2.Route(r'/print', handler = PrintChequesPage),
