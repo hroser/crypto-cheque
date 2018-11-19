@@ -24,6 +24,12 @@ unpad = lambda s: s[:-ord(s[len(s) - 1:])]
 
 base_index_characters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 
+# load keys from keyfile 
+keys_str = open('keys.json').read()
+keys = json.loads(keys_str)
+api_key = keys['blockcypher_apikey']
+addr_service_fee = keys['coinbase_addr_service_fee']
+
 class Cheque(ndb.Model):
     """Models a cheque data object"""
     created = ndb.DateTimeProperty(auto_now_add=True)
@@ -34,10 +40,6 @@ class Cheque(ndb.Model):
     verification_shifts = ndb.StringProperty()
 
 def send_tx(private_key_sender, public_key_sender, public_address_sender, public_address_receiver):
-  # api key
-  api_key = '880643770b1448bf87b4278eb145ab0f'
-  addr_service_fee = '32pRJbkXSRcchk3TJfHY4jkkkki9s3y5Uj'
-  
   # get fees
   try:
     medium_fees = int(get_blockchain_overview()['medium_fee_per_kb'])
