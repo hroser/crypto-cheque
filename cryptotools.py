@@ -9,6 +9,7 @@ from Crypto.Cipher import AES
 from google.appengine.ext import ndb
 import base64
 import logging
+import json
 
 # blockcypher api
 from blockcypher import get_address_overview
@@ -50,7 +51,7 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
   # get balance
   try:
     addr_overview = get_address_overview(public_address_sender)
-    balance = int(addr_overview['balance'])
+    balance = int(addr_overview['final_balance'])
     service_fee = max(1000, int(balance * 0.015))   # lower limit for transaction is 546 satoshis 
     payout = int(balance - service_fee - transaction_fee)
     preference = 'low'
@@ -88,7 +89,7 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
   if 'errors' in broadcasted:
     return broadcasted
   
-  return 0
+  return broadcasted
   
 def get_balance(ident):
   #logging.debug('getting balance for ident ' + ident)
@@ -102,22 +103,33 @@ def get_balance(ident):
   except Exception as e:
     logging.error(e)
     return None
-  return address_overview['balance']
+  return float(address_overview['final_balance'])/100000000
 
-def redeem(ident, verification_code, receiver_address):
+def redeem(ident, verification_code, verification_index, receiver_address):
+  logging.debug('redeeming ')
+  logging.debug('verification_code ' + verification_code)
+  logging.debug('verification_index ' + verification_index)
+  logging.debug('receiver_address ' + receiver_address)
   ident_hash256 = hashlib.sha256(ident).hexdigest()
+  logging.debug('ident_hash256 ' + ident_hash256)
   query = Cheque.query(Cheque.ident_sha256 == ident_hash256).fetch(1)
   if len(query) == 0:
     return None
   cheque = query[0]
+  index_digits = cheque.verification_shifts.split(',')[int(verification_index)]
+  logging.debug('index_digits ' + index_digits)
+  verification_code_base = verification_master_decrypt(verification_code, index_digits)
+  logging.debug('verification_code_base ' + verification_code_base)
   #try:
-  private_key_sender = decrypt(cheque.private_key_encrypted, ident+verification_code)
+  private_key_sender = decrypt(cheque.private_key_encrypted, ident+verification_code_base)
+  logging.debug('private_key_sender ' + private_key_sender)
   result = send_tx(private_key_sender, cheque.public_key, cheque.public_address, receiver_address)
+  logging.debug('result ' + str(result))
     #address_overview = get_address_overview(cheque.public_address)
   #except:
     #return sys.exc_info()[0]
     #return 'redeem error'
-  return result
+  return str(result)
     
 def base58encode(n):
     result = ''

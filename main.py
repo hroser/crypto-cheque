@@ -132,8 +132,9 @@ class MainPage(Handler):
 			else:
 				self.render('main.html', cheque_ident = cheque_ident, cheque_balance = cheque_balance)
 		elif redeem:
-			result = cryptotools.redeem(cheque_ident, verification_code, receiver_address)
-			self.render('main.html', cheque_ident = cheque_ident, cheque_balance = result)
+            
+			result = cryptotools.redeem(cheque_ident_filtered, verification_code, verification_index, receiver_address)
+			self.render('main.html', cheque_ident = cheque_ident, redeem_transaction = result)
 		
 		
 		
