@@ -126,14 +126,14 @@ class MainPage(Handler):
 		verification_index_new = random.randint(0,15)
 		verification_index_chars = verification_index_list[verification_index_new]
 		
-		cheque_balance = cryptotools.get_balance(cheque_ident_filtered)
+		cheque_balance, cheque_public_address = cryptotools.get_balance(cheque_ident_filtered)
 		logging.debug('cheque_balance ' + str(cheque_balance))
 		
 		if check_balance:
 			# render main page
 			if cheque_balance is not None:
 				logging.debug('cheque_balance is not None ' + str(cheque_ident))
-				self.render('main.html', cheque_ident = cheque_ident_formatted, cheque_ident_requested = cheque_ident_formatted, cheque_balance = cheque_balance, verification_index_chars = verification_index_chars, verification_index = verification_index_new)
+				self.render('main.html', cheque_ident = cheque_ident_formatted, cheque_ident_requested = cheque_ident_formatted, cheque_public_address = cheque_public_address, cheque_balance = cheque_balance, verification_index_chars = verification_index_chars, verification_index = verification_index_new)
 			else:
 				logging.debug('cheque_balance is None ' + str(cheque_ident))
 				if len(cheque_ident_filtered) == 15:
@@ -143,9 +143,9 @@ class MainPage(Handler):
 		elif redeem:
 			error_code, message = cryptotools.redeem(cheque_ident_requested_filtered, verification_code, verification_index_request, receiver_address)
 			if error_code == 0:
-				self.render('main.html', cheque_ident = cheque_ident_formatted, cheque_ident_requested = cheque_ident_formatted, cheque_balance = 0.0, redeem_transaction = message)
+				self.render('main.html', cheque_ident = cheque_ident_formatted, cheque_ident_requested = cheque_ident_formatted, cheque_public_address = cheque_public_address, cheque_balance = 0.0, redeem_transaction = message)
 			else:
-				self.render('main.html', cheque_ident = cheque_ident_formatted, cheque_ident_requested = cheque_ident_formatted, cheque_balance = cheque_balance, verification_index_chars = verification_index_chars, verification_index = verification_index_new, error_message = str(error_code) + ': ' + message)
+				self.render('main.html', cheque_ident = cheque_ident_formatted, cheque_ident_requested = cheque_ident_formatted, cheque_public_address = cheque_public_address, cheque_balance = cheque_balance, verification_index_chars = verification_index_chars, verification_index = verification_index_new, error_message = str(error_code) + ': ' + message)
 		
 		
 		

@@ -96,14 +96,14 @@ def get_balance(ident):
   ident_hash256 = hashlib.sha256(ident).hexdigest()
   query = Cheque.query(Cheque.ident_sha256 == ident_hash256).fetch(1)
   if len(query) == 0:
-    return None
+    return None, None
   cheque = query[0]
   try:
     address_overview = get_address_overview(cheque.public_address)
   except Exception as e:
     logging.error(e)
-    return None
-  return float(address_overview['final_balance'])/100000000
+    return None, None
+  return float(address_overview['final_balance'])/100000000, cheque.public_address
 
 def redeem(ident, verification_code, verification_index, receiver_address):
   logging.debug('redeeming ')
