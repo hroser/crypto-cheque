@@ -46,17 +46,17 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
   try:
     addr_overview = get_address_overview(public_address_sender)
     balance = int(addr_overview['final_balance'])
-    
     service_fee, transaction_fee = get_fees(balance)
-    
-    if transaction_fees == 0:
-      return 103, 'Error: Balance too low for payout. Minimum payout amout is {:.8f} BTC.'.format(float(intget_blockchain_overview()['low_fee_per_kb'])/100000000)
-    
+	
+    if transaction_fee == 0:
+        return 103, 'Error: Balance too low for payout. Minimum payout amout is {:.8f} BTC.'.format(float(intget_blockchain_overview()['low_fee_per_kb'])/100000000)
+	
     payout = int(balance - service_fee - transaction_fee)
     preference = 'low'
-  except:
+  except Exception as e:
+    logging.error(e)
     return 102, 'API error 102.'
-  
+
   # create unsigned transaction
   inputs = [{'address': public_address_sender}]
   if service_fee > 0:
@@ -66,7 +66,8 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
   
   try:
     unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference=preference)
-  except:
+  except Exception as e:
+    logging.error(e)
     return 104, 'API error 104.'
   
   # sign transaction
@@ -74,7 +75,8 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
   pubkey_list = [public_key_sender]
   try:
     tx_signatures = make_tx_signatures(txs_to_sign=unsigned_tx['tosign'], privkey_list=privkey_list, pubkey_list=pubkey_list)
-  except:
+  except Exception as e:
+    logging.error(e)
     return 105, 'Verification error.'
   
   if 'errors' in tx_signatures:
@@ -83,7 +85,8 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
   # push transaction
   try:
     broadcasted = broadcast_signed_transaction(unsigned_tx=unsigned_tx, signatures=tx_signatures, pubkeys=pubkey_list, coin_symbol='btc', api_key=api_key)
-  except:
+  except Exception as e:
+    logging.error(e)
     return 107, 'API error 107.'
   
   if 'errors' in broadcasted:
@@ -113,7 +116,8 @@ def get_fees(balance):
     medium_fees = int(get_blockchain_overview()['medium_fee_per_kb'])
     low_fees = int(get_blockchain_overview()['low_fee_per_kb'])
     transaction_fee = int(medium_fees*0.5)
-  except:
+  except Exception as e:
+    logging.error(e)
     return 0, 0
   
   if int(balance * SERVICE_FEE) < 1000:
@@ -151,7 +155,9 @@ def redeem(ident, verification_code, verification_index, receiver_address):
   index_digits = cheque.verification_shifts.split(',')[int(verification_index)]
   logging.debug('index_digits ' + index_digits)
   verification_code_base = verification_master_decrypt(verification_code, index_digits)
+  logging.debug('ident ' + ident)
   logging.debug('verification_code_base ' + verification_code_base)
+  logging.debug('cheque.private_key_encrypted ' + cheque.private_key_encrypted)
   #try:
   private_key_sender = decrypt(cheque.private_key_encrypted, ident+verification_code_base)
   logging.debug('private_key_sender ' + private_key_sender)
@@ -236,10 +242,15 @@ def encrypt(raw, password):
   return base64.b64encode(iv + cipher.encrypt(raw))
 
 def decrypt(enc, password):
+  logging.debug('enc' + enc)
+  logging.debug('password' + password)
   private_key = hashlib.sha256(password.encode("utf-8")).digest()
+  logging.debug('private_key' + private_key)
   enc = base64.b64decode(enc)
+  logging.debug('enc' + enc)
   iv = enc[:16]
   cipher = AES.new(private_key, AES.MODE_CBC, iv)
+  logging.debug('cipher.decrypt(enc[16:]) ' + cipher.decrypt(enc[16:]))
   return unpad(cipher.decrypt(enc[16:]))
 
 def generateCheque():
