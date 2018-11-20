@@ -9,6 +9,7 @@ from Crypto.Cipher import AES
 from google.appengine.ext import ndb
 import base64
 import logging
+import json
 
 # blockcypher api
 from blockcypher import get_address_overview
@@ -18,11 +19,10 @@ from blockcypher import broadcast_signed_transaction
 from blockcypher import get_blockchain_overview
 
 BLOCK_SIZE = 16
-SERVICE_FEE = 0.015
-
 b58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
 unpad = lambda s: s[:-ord(s[len(s) - 1:])]
+
 base_index_characters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 
 # load keys from keyfile 
@@ -41,158 +41,96 @@ class Cheque(ndb.Model):
     verification_shifts = ndb.StringProperty()
 
 def send_tx(private_key_sender, public_key_sender, public_address_sender, public_address_receiver):
+  # get fees
+  try:
+    medium_fees = int(get_blockchain_overview()['medium_fee_per_kb'])
+    transaction_fee = int(medium_fees*0.5)
+  except:
+    return 101, 'error get_blockchain_overview'
+  
   # get balance
   try:
     addr_overview = get_address_overview(public_address_sender)
-<<<<<<< HEAD
     balance = int(addr_overview['final_balance'])
-    service_fee, transaction_fee = get_fees(balance)
-	
-    if transaction_fee == 0:
-        return 103, 'Error: Balance too low for payout. Minimum payout amout is {:.8f} BTC.'.format(float(intget_blockchain_overview()['low_fee_per_kb'])/100000000)
-	
-=======
-    balance = int(addr_overview['balance'])
     service_fee = max(1000, int(balance * 0.015))   # lower limit for transaction is 546 satoshis 
->>>>>>> parent of f2e4a25... Add redeem functionality
     payout = int(balance - service_fee - transaction_fee)
     preference = 'low'
-  except Exception as e:
-    logging.error(e)
-    return 102, 'API error 102.'
+  except:
+    return 102, 'error get balance'
 
+  if payout <= 1000:
+    return 103, 'error payout <= 1000 satoshis'
+  
   # create unsigned transaction
   inputs = [{'address': public_address_sender}]
-  if service_fee > 0:
-    outputs = [{'address': public_address_receiver, 'value': payout}, {'address': addr_service_fee, 'value': service_fee}]
-  else:
-    outputs = [{'address': public_address_receiver, 'value': payout}]
-  
+  outputs = [{'address': public_address_receiver, 'value': payout}, {'address': addr_service_fee, 'value': service_fee}]
   try:
     unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference=preference)
-  except Exception as e:
-    logging.error(e)
-    return 104, 'API error 104.'
+  except:
+    return 104, 'error create_unsigned_tx'
   
   # sign transaction
   privkey_list = [private_key_sender]
   pubkey_list = [public_key_sender]
   try:
     tx_signatures = make_tx_signatures(txs_to_sign=unsigned_tx['tosign'], privkey_list=privkey_list, pubkey_list=pubkey_list)
-  except Exception as e:
-    logging.error(e)
-    return 105, 'Verification error.'
+  except:
+    return 105, 'error make_tx_signatures'
   
   if 'errors' in tx_signatures:
-    return 106, 'API error 106.'
+    return 106, tx_signatures['errors']
   
   # push transaction
   try:
     broadcasted = broadcast_signed_transaction(unsigned_tx=unsigned_tx, signatures=tx_signatures, pubkeys=pubkey_list, coin_symbol='btc', api_key=api_key)
-  except Exception as e:
-    logging.error(e)
-    return 107, 'API error 107.'
+  except:
+    return 107, 'error broadcast_signed_transaction'
   
   if 'errors' in broadcasted:
-    return 108, 'API error 108.'
+    return 108, broadcasted['errors']
   
-<<<<<<< HEAD
   return 0, broadcasted['tx']['hash']
-=======
-  return 0
->>>>>>> parent of f2e4a25... Add redeem functionality
   
 def get_balance(ident):
   #logging.debug('getting balance for ident ' + ident)
   ident_hash256 = hashlib.sha256(ident).hexdigest()
   query = Cheque.query(Cheque.ident_sha256 == ident_hash256).fetch(1)
   if len(query) == 0:
-    return None, None
+    return None
   cheque = query[0]
   try:
     address_overview = get_address_overview(cheque.public_address)
   except Exception as e:
     logging.error(e)
-<<<<<<< HEAD
-    return None, None
-  return address_overview['final_balance'], cheque.public_address
-
-def get_fees(balance):
-  if (balance is None) or (balance == 0):
-    return 0, 0
-  
-  try:
-    medium_fees = int(get_blockchain_overview()['medium_fee_per_kb'])
-    low_fees = int(get_blockchain_overview()['low_fee_per_kb'])
-    transaction_fee = int(medium_fees*0.5)
-  except Exception as e:
-    logging.error(e)
-    return 0, 0
-  
-  if int(balance * SERVICE_FEE) < 1000:
-    service_fee = 0
-  else:
-    service_fee = int(balance * SERVICE_FEE)   # lower limit for transaction is 546 satoshis
-      
-  if balance <= (transaction_fee + service_fee):
-    service_fee = 0
-    if balance > low_fees:      
-      transaction_fee = int(low_fees)
-    else:
-      transaction_fee = 0
-      
-  return service_fee, transaction_fee
-
-def validate_btc_address(address):
-  try:
-    address_overview = get_address_overview(address)
-  except Exception as e:
-    return False
-  return True
+    return None
+  return float(address_overview['final_balance'])/100000000
 
 def redeem(ident, verification_code, verification_index, receiver_address):
   logging.debug('redeeming ')
   logging.debug('verification_code ' + verification_code)
-  logging.debug('verification_index ' + str(verification_index))
+  logging.debug('verification_index ' + verification_index)
   logging.debug('receiver_address ' + receiver_address)
-=======
-    return None
-  return address_overview['balance']
-
-def redeem(ident, verification_code, receiver_address):
->>>>>>> parent of f2e4a25... Add redeem functionality
   ident_hash256 = hashlib.sha256(ident).hexdigest()
+  logging.debug('ident_hash256 ' + ident_hash256)
   query = Cheque.query(Cheque.ident_sha256 == ident_hash256).fetch(1)
   if len(query) == 0:
     return None
   cheque = query[0]
-<<<<<<< HEAD
   index_digits = cheque.verification_shifts.split(',')[int(verification_index)]
   logging.debug('index_digits ' + index_digits)
   verification_code_base = verification_master_decrypt(verification_code, index_digits)
-  logging.debug('ident ' + ident)
   logging.debug('verification_code_base ' + verification_code_base)
-  logging.debug('cheque.private_key_encrypted ' + cheque.private_key_encrypted)
   #try:
   private_key_sender = decrypt(cheque.private_key_encrypted, ident+verification_code_base)
   logging.debug('private_key_sender ' + private_key_sender)
   error_code, message = send_tx(private_key_sender, cheque.public_key, cheque.public_address, receiver_address)
   logging.debug('error_code ' + str(error_code))
   logging.debug('message ' + str(message))
-=======
-  #try:
-  private_key_sender = decrypt(cheque.private_key_encrypted, ident+verification_code)
-  result = send_tx(private_key_sender, cheque.public_key, cheque.public_address, receiver_address)
->>>>>>> parent of f2e4a25... Add redeem functionality
     #address_overview = get_address_overview(cheque.public_address)
   #except:
     #return sys.exc_info()[0]
     #return 'redeem error'
-<<<<<<< HEAD
   return error_code, message
-=======
-  return result
->>>>>>> parent of f2e4a25... Add redeem functionality
     
 def base58encode(n):
     result = ''
@@ -266,15 +204,10 @@ def encrypt(raw, password):
   return base64.b64encode(iv + cipher.encrypt(raw))
 
 def decrypt(enc, password):
-  logging.debug('enc' + enc)
-  logging.debug('password' + password)
   private_key = hashlib.sha256(password.encode("utf-8")).digest()
-  logging.debug('private_key' + private_key)
   enc = base64.b64decode(enc)
-  logging.debug('enc' + enc)
   iv = enc[:16]
   cipher = AES.new(private_key, AES.MODE_CBC, iv)
-  logging.debug('cipher.decrypt(enc[16:]) ' + cipher.decrypt(enc[16:]))
   return unpad(cipher.decrypt(enc[16:]))
 
 def generateCheque():
@@ -377,8 +310,6 @@ def verification_master_encrypt(verification_master, index_digits):
 
 def verification_master_decrypt(encrypted, index_digits):
   result = ''
-  if len(encrypted) != 6:
-    return result
   for i in range(6):
     n = ord(encrypted[i])
     # capital letters

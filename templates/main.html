@@ -123,64 +123,43 @@ margin-bottom: 15px
 	<form id="check_balance_form" method="POST" enctype="multipart/form-data">
 		Enter cheque ID:
 		<br><br>
-		<input type="text" style="font: 16px sans-serif; width: 260px;" name="cheque_ident" value="{{cheque_ident}}">
+    <input type="text" style="font: 16px sans-serif; width: 260px;" name="cheque_ident" value="{{cheque_ident}}">
 		<input type="submit" name="check_balance" value="Check balance">
 		<br><br>
 		{% if cheque_balance != None %}
-<<<<<<< HEAD
-                ID: {{cheque_ident_requested}}<br>
-				Balance: {{cheque_balance}} BTC 
-				{% if cheque_public_address %}
-        (<a href="https://live.blockcypher.com/btc/address/{{cheque_public_address}}/" target="_blank" style="color: black;">show details</a>)
-        {% endif %}
-				<br>
-        {% if cheque_balance != 0 %}
-				Service fee: {{service_fee}} BTC<br>
-				Transaction fee: {{transaction_fee}} BTC<br>
-				Total payout: {{total_payout}} BTC<br>
-=======
-        ID: {{cheque_ident}}<br>
-				Balance: {{cheque_balance}}<br>
+                ID: {{cheque_ident}}<br>
+				Balance: {{cheque_balance}} BTC<br>
+                {% if cheque_balance != 0 %}
 				Verification code {{verification_index_chars}}: <input type="text" style="font: 16px sans-serif; width: 260px;" name="verification_code" value="{{verification_code}}"><br>
->>>>>>> parent of f2e4a25... Add redeem functionality
 				Send balance to BTC address: <input type="text" style="font: 16px sans-serif; width: 260px;" name="receiver_address" value="{{receiver_address}}">
-				Verification code {{verification_index_chars}}: <input type="text" style="font: 16px sans-serif; width: 260px;" name="verification_code" value="{{verification_code}}"><br>
-				<input type="hidden" name="cheque_ident_requested" value="{{cheque_ident_requested}}">
 				<input type="hidden" name="verification_index" value="{{verification_index}}">
 				<input type="submit" name="redeem" value="Redeem">
-<<<<<<< HEAD
-        {% endif %}
+                {% endif %}
 				<br><br>
-				
-                {% if redeem_transaction %}
+                {% if redeem_transaction != None %}
                 Successfully redeemed:<br>
-                <a href="https://live.blockcypher.com/btc/tx/{{redeem_transaction}}/" target="_blank" style="color: black;">Show transaction</a> 
+                <a href="https://live.blockcypher.com/btc/tx/{{redeem_transaction}}/" style="color: black;">Show transaction</a> 
                 <br><br>
                 {% endif %}
         {% endif %}
-		{% if error_message %}
+		{% if error_message != None %}
         <br><br>
         <font color="red">{{error_message}}</font>
         <br><br>
         {% endif %}
-=======
-				<br><br>
-    {% endif %}
-		
->>>>>>> parent of f2e4a25... Add redeem functionality
 		</center>
 		<br>
 	</div>
 		<br>
-		<a href="/print" style="color: black;">Print Crypto Cheques</a> 
+		<a href="/print" target="_blank" style="color: black;">Print Crypto Cheques</a> 
 		<br>
 	</form>
 	
 		<div class="centerinfo">
 		<br><br>
-		If there are any issues, please contact us:
+		Crypto-Cheque is a open source project:
 		<br>
-		<a href="mailto:@gmail.com" style="color: black;">@gmail.com</a> 
+		<a href="https://github.com/hroser/crypto-cheque" style="color: black;">https://github.com/hroser/crypto-cheque</a> 
 		</div>
 
 	<br><br><br><br>
