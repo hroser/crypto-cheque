@@ -167,6 +167,7 @@ class MainPage(Handler):
 						cheque_ident_requested = 'invalid', 
 						cheque_balance = 0.0)
 		elif redeem:
+<<<<<<< HEAD
 			if cryptotools.validate_btc_address(receiver_address):
 				error_code, message = cryptotools.redeem(cheque_ident_requested_filtered, verification_code_filtered, verification_index_request, receiver_address)
 			else:
@@ -193,6 +194,16 @@ class MainPage(Handler):
 					total_payout = total_payout,
 					error_message = message)
 			
+=======
+			result = cryptotools.redeem(cheque_ident, verification_code, receiver_address)
+			self.render('main.html', cheque_ident = cheque_ident, cheque_balance = result)
+		
+		
+		
+		
+		 
+		
+>>>>>>> parent of f2e4a25... Add redeem functionality
 app = webapp2.WSGIApplication([
     webapp2.Route(r'/print', handler = PrintChequesPage),
     webapp2.Route(r'/', handler = MainPage),

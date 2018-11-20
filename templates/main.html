@@ -127,6 +127,7 @@ margin-bottom: 15px
 		<input type="submit" name="check_balance" value="Check balance">
 		<br><br>
 		{% if cheque_balance != None %}
+<<<<<<< HEAD
                 ID: {{cheque_ident_requested}}<br>
 				Balance: {{cheque_balance}} BTC 
 				{% if cheque_public_address %}
@@ -137,11 +138,17 @@ margin-bottom: 15px
 				Service fee: {{service_fee}} BTC<br>
 				Transaction fee: {{transaction_fee}} BTC<br>
 				Total payout: {{total_payout}} BTC<br>
+=======
+        ID: {{cheque_ident}}<br>
+				Balance: {{cheque_balance}}<br>
+				Verification code {{verification_index_chars}}: <input type="text" style="font: 16px sans-serif; width: 260px;" name="verification_code" value="{{verification_code}}"><br>
+>>>>>>> parent of f2e4a25... Add redeem functionality
 				Send balance to BTC address: <input type="text" style="font: 16px sans-serif; width: 260px;" name="receiver_address" value="{{receiver_address}}">
 				Verification code {{verification_index_chars}}: <input type="text" style="font: 16px sans-serif; width: 260px;" name="verification_code" value="{{verification_code}}"><br>
 				<input type="hidden" name="cheque_ident_requested" value="{{cheque_ident_requested}}">
 				<input type="hidden" name="verification_index" value="{{verification_index}}">
 				<input type="submit" name="redeem" value="Redeem">
+<<<<<<< HEAD
         {% endif %}
 				<br><br>
 				
@@ -156,19 +163,24 @@ margin-bottom: 15px
         <font color="red">{{error_message}}</font>
         <br><br>
         {% endif %}
+=======
+				<br><br>
+    {% endif %}
+		
+>>>>>>> parent of f2e4a25... Add redeem functionality
 		</center>
 		<br>
 	</div>
 		<br>
-		<a href="/print" target="_blank" style="color: black;">Print Crypto Cheques</a> 
+		<a href="/print" style="color: black;">Print Crypto Cheques</a> 
 		<br>
 	</form>
 	
 		<div class="centerinfo">
 		<br><br>
-		Crypto-Cheque is a open source project:
+		If there are any issues, please contact us:
 		<br>
-		<a href="https://github.com/hroser/crypto-cheque" style="color: black;">https://github.com/hroser/crypto-cheque</a> 
+		<a href="mailto:@gmail.com" style="color: black;">@gmail.com</a> 
 		</div>
 
 	<br><br><br><br>

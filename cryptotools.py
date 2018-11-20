@@ -9,7 +9,6 @@ from Crypto.Cipher import AES
 from google.appengine.ext import ndb
 import base64
 import logging
-import json
 
 # blockcypher api
 from blockcypher import get_address_overview
@@ -45,12 +44,17 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
   # get balance
   try:
     addr_overview = get_address_overview(public_address_sender)
+<<<<<<< HEAD
     balance = int(addr_overview['final_balance'])
     service_fee, transaction_fee = get_fees(balance)
 	
     if transaction_fee == 0:
         return 103, 'Error: Balance too low for payout. Minimum payout amout is {:.8f} BTC.'.format(float(intget_blockchain_overview()['low_fee_per_kb'])/100000000)
 	
+=======
+    balance = int(addr_overview['balance'])
+    service_fee = max(1000, int(balance * 0.015))   # lower limit for transaction is 546 satoshis 
+>>>>>>> parent of f2e4a25... Add redeem functionality
     payout = int(balance - service_fee - transaction_fee)
     preference = 'low'
   except Exception as e:
@@ -92,7 +96,11 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
   if 'errors' in broadcasted:
     return 108, 'API error 108.'
   
+<<<<<<< HEAD
   return 0, broadcasted['tx']['hash']
+=======
+  return 0
+>>>>>>> parent of f2e4a25... Add redeem functionality
   
 def get_balance(ident):
   #logging.debug('getting balance for ident ' + ident)
@@ -105,6 +113,7 @@ def get_balance(ident):
     address_overview = get_address_overview(cheque.public_address)
   except Exception as e:
     logging.error(e)
+<<<<<<< HEAD
     return None, None
   return address_overview['final_balance'], cheque.public_address
 
@@ -146,12 +155,18 @@ def redeem(ident, verification_code, verification_index, receiver_address):
   logging.debug('verification_code ' + verification_code)
   logging.debug('verification_index ' + str(verification_index))
   logging.debug('receiver_address ' + receiver_address)
+=======
+    return None
+  return address_overview['balance']
+
+def redeem(ident, verification_code, receiver_address):
+>>>>>>> parent of f2e4a25... Add redeem functionality
   ident_hash256 = hashlib.sha256(ident).hexdigest()
-  logging.debug('ident_hash256 ' + ident_hash256)
   query = Cheque.query(Cheque.ident_sha256 == ident_hash256).fetch(1)
   if len(query) == 0:
     return None
   cheque = query[0]
+<<<<<<< HEAD
   index_digits = cheque.verification_shifts.split(',')[int(verification_index)]
   logging.debug('index_digits ' + index_digits)
   verification_code_base = verification_master_decrypt(verification_code, index_digits)
@@ -164,11 +179,20 @@ def redeem(ident, verification_code, verification_index, receiver_address):
   error_code, message = send_tx(private_key_sender, cheque.public_key, cheque.public_address, receiver_address)
   logging.debug('error_code ' + str(error_code))
   logging.debug('message ' + str(message))
+=======
+  #try:
+  private_key_sender = decrypt(cheque.private_key_encrypted, ident+verification_code)
+  result = send_tx(private_key_sender, cheque.public_key, cheque.public_address, receiver_address)
+>>>>>>> parent of f2e4a25... Add redeem functionality
     #address_overview = get_address_overview(cheque.public_address)
   #except:
     #return sys.exc_info()[0]
     #return 'redeem error'
+<<<<<<< HEAD
   return error_code, message
+=======
+  return result
+>>>>>>> parent of f2e4a25... Add redeem functionality
     
 def base58encode(n):
     result = ''
