@@ -242,15 +242,10 @@ def encrypt(raw, password):
   return base64.b64encode(iv + cipher.encrypt(raw))
 
 def decrypt(enc, password):
-  logging.debug('enc' + enc)
-  logging.debug('password' + password)
   private_key = hashlib.sha256(password.encode("utf-8")).digest()
-  logging.debug('private_key' + private_key)
   enc = base64.b64decode(enc)
-  logging.debug('enc' + enc)
   iv = enc[:16]
   cipher = AES.new(private_key, AES.MODE_CBC, iv)
-  logging.debug('cipher.decrypt(enc[16:]) ' + cipher.decrypt(enc[16:]))
   return unpad(cipher.decrypt(enc[16:]))
 
 def generateCheque():
