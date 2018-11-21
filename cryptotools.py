@@ -26,7 +26,7 @@ pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s)
 unpad = lambda s: s[:-ord(s[len(s) - 1:])]
 base_index_characters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 
-# load keys from keyfile 
+# load keys from keyfile
 keys_str = open('keys.json').read()
 keys = json.loads(keys_str)
 api_key = keys['blockcypher_apikey']
@@ -47,10 +47,10 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
     addr_overview = get_address_overview(public_address_sender)
     balance = int(addr_overview['final_balance'])
     service_fee, transaction_fee = get_fees(balance)
-	
+
     if transaction_fee == 0:
         return 103, 'Error: Balance too low for payout. Minimum payout amout is {:.8f} BTC.'.format(float(intget_blockchain_overview()['low_fee_per_kb'])/100000000)
-	
+
     payout = int(balance - service_fee - transaction_fee)
     preference = 'low'
   except Exception as e:
@@ -63,13 +63,13 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
     outputs = [{'address': public_address_receiver, 'value': payout}, {'address': addr_service_fee, 'value': service_fee}]
   else:
     outputs = [{'address': public_address_receiver, 'value': payout}]
-  
+
   try:
     unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference=preference)
   except Exception as e:
     logging.error(e)
     return 104, 'API error 104.'
-  
+
   # sign transaction
   privkey_list = [private_key_sender]
   pubkey_list = [public_key_sender]
@@ -77,23 +77,23 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
     tx_signatures = make_tx_signatures(txs_to_sign=unsigned_tx['tosign'], privkey_list=privkey_list, pubkey_list=pubkey_list)
   except Exception as e:
     logging.error(e)
-    return 105, 'Verification error.'
-  
+    return 105, 'Verification failed'
+
   if 'errors' in tx_signatures:
     return 106, 'API error 106.'
-  
+
   # push transaction
   try:
     broadcasted = broadcast_signed_transaction(unsigned_tx=unsigned_tx, signatures=tx_signatures, pubkeys=pubkey_list, coin_symbol='btc', api_key=api_key)
   except Exception as e:
     logging.error(e)
     return 107, 'API error 107.'
-  
+
   if 'errors' in broadcasted:
     return 108, 'API error 108.'
-  
+
   return 0, broadcasted['tx']['hash']
-  
+
 def get_balance(ident):
   #logging.debug('getting balance for ident ' + ident)
   ident_hash256 = hashlib.sha256(ident).hexdigest()
@@ -111,7 +111,7 @@ def get_balance(ident):
 def get_fees(balance):
   if (balance is None) or (balance == 0):
     return 0, 0
-  
+
   try:
     medium_fees = int(get_blockchain_overview()['medium_fee_per_kb'])
     low_fees = int(get_blockchain_overview()['low_fee_per_kb'])
@@ -119,19 +119,19 @@ def get_fees(balance):
   except Exception as e:
     logging.error(e)
     return 0, 0
-  
+
   if int(balance * SERVICE_FEE) < 1000:
     service_fee = 0
   else:
     service_fee = int(balance * SERVICE_FEE)   # lower limit for transaction is 546 satoshis
-      
+
   if balance <= (transaction_fee + service_fee):
     service_fee = 0
-    if balance > low_fees:      
+    if balance > low_fees:
       transaction_fee = int(low_fees)
     else:
       transaction_fee = 0
-      
+
   return service_fee, transaction_fee
 
 def validate_btc_address(address):
@@ -169,7 +169,7 @@ def redeem(ident, verification_code, verification_index, receiver_address):
     #return sys.exc_info()[0]
     #return 'redeem error'
   return error_code, message
-    
+
 def base58encode(n):
     result = ''
     while n > 0:
@@ -187,17 +187,17 @@ def privateKeyToPublicKey(s):
     sk = ecdsa.SigningKey.from_string(s.decode('hex'), curve=ecdsa.SECP256k1)
     vk = sk.verifying_key
     return ('\04' + sk.verifying_key.to_string()).encode('hex')
-  
-def privateKeyToWif(key_hex):    
+
+def privateKeyToWif(key_hex):
     return base58CheckEncode(0x80, key_hex.decode('hex'))
-  
+
 def base58CheckEncode(version, payload):
     s = chr(version) + payload
     checksum = hashlib.sha256(hashlib.sha256(s).digest()).digest()[0:4]
     result = s + checksum
     leadingZeros = countLeadingChars(result, '\0')
     return '1' * leadingZeros + base58encode(base256decode(result))
-  
+
 def countLeadingChars(s, ch):
     count = 0
     for c in s:
@@ -206,7 +206,7 @@ def countLeadingChars(s, ch):
         else:
             break
     return count
-  
+
 def pubKeyToAddr(s):
     #ripemd160 = hashlib.new('ripemd160')
     ripemd160 = RIPEMD.new()
@@ -215,7 +215,7 @@ def pubKeyToAddr(s):
 
 def keyToAddr(s):
     return pubKeyToAddr(privateKeyToPublicKey(s))
-  
+
 def generateKey():
   private_key = hexlify(ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1).to_string())
   public_key = privateKeyToPublicKey(private_key)
@@ -233,7 +233,7 @@ def generateVerification():
   verification_master = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(6))
   verification_shifts = ','.join(''.join(random.choice(string.digits) for _ in range(6)) for _ in range(16))
   return verification_master, verification_shifts
- 
+
 def encrypt(raw, password):
   private_key = hashlib.sha256(password.encode("utf-8")).digest()
   raw = pad(raw)
@@ -251,17 +251,17 @@ def decrypt(enc, password):
 def generateCheque():
   # generate cheque database entity
   cheque = Cheque()
-  
+
   # generate random cheque id
   ident = generateIdent()
   ident_sha256 = hashlib.sha256(ident).hexdigest()
-  
-  # generate random bitcoin key 
+
+  # generate random bitcoin key
   key = generateKey()
-  
+
   # generate random verification keys
   verification_master, verification_shifts = generateVerification()
-  
+
   # push cheque to database
   cheque.ident_sha256 = ident_sha256
   cheque.private_key_encrypted = encrypt(key['private_key'], ident + verification_master)
@@ -269,12 +269,12 @@ def generateCheque():
   cheque.public_address = key['public_address']
   cheque.verification_shifts = verification_shifts
   cheque.put()
-  
+
   return ident, verification_master, verification_shifts, cheque
 
 
 def generate_chars_bars(verification_master, verification_shifts_string):
-  
+
   # generate random int lists
   data = [x for x in range(52)]
   random_picks = []
@@ -290,10 +290,10 @@ def generate_chars_bars(verification_master, verification_shifts_string):
     picks.append(elem)
   picks.sort()
   random_picks.append(picks)
-  
+
   # verification shifts
   verification_shifts_list = verification_shifts_string.split(',')
-  
+
   # generate chars
   validation_chars_list = []
   for i in range(4):
@@ -310,9 +310,9 @@ def generate_chars_bars(verification_master, verification_shifts_string):
       else:
         validation_chars += random.choice(string.ascii_letters)
     validation_chars += "|"
-    validation_chars_list.append(validation_chars) 
+    validation_chars_list.append(validation_chars)
     validation_chars = ''
-  
+
   # generate bars
   validation_bars_list = []
   for i in range(4):
@@ -323,11 +323,11 @@ def generate_chars_bars(verification_master, verification_shifts_string):
       else:
         validation_bars += " "
     validation_bars += "|"
-    validation_bars_list.append(validation_bars) 
+    validation_bars_list.append(validation_bars)
     validation_bars = ''
-  
+
   return validation_chars_list, validation_bars_list
-  
+
 def verification_master_encrypt(verification_master, index_digits):
   result = ''
   for i in range(6):
