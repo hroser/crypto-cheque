@@ -136,14 +136,16 @@ class MainPage(Handler):
 			service_fee, transaction_fee = cryptotools.get_fees(cheque_balance)
 			total_payout = cheque_balance - service_fee - transaction_fee
 
-			cheque_balance = float(cheque_balance)/100000000
-			service_fee = float(service_fee)/100000000
-			transaction_fee = float(transaction_fee)/100000000
-			total_payout = float(total_payout)/100000000
+			cheque_balance = '{:.8f}'.format(float(cheque_balance)/100000000)
+			service_fee = '{:.8f}'.format(float(service_fee)/100000000)
+			transaction_fee = '{:.8f}'.format(float(transaction_fee)/100000000)
+			total_payout = '{:.8f}'.format(float(total_payout)/100000000)
+			show_payout_details = True
 		else:
-			service_fee = 0.0
-			transaction_fee = 0.0
-			total_payout = 0.0
+			service_fee = '{:.8f}'.format(0.0)
+			transaction_fee = '{:.8f}'.format(0.0)
+			total_payout = '{:.8f}'.format(0.0)
+			show_payout_details = False
 
 		if check_balance:
 			# render main page
@@ -157,19 +159,22 @@ class MainPage(Handler):
 					verification_index = verification_index_new,
 					service_fee = service_fee,
 					transaction_fee = transaction_fee,
-					total_payout = total_payout)
+					total_payout = total_payout,
+					show_payout_details = show_payout_details)
 			else:
 				if len(cheque_ident_filtered) == 15:
 					self.render('main.html',
 						cheque_ident = cheque_ident,
 						cheque_ident_requested = cheque_ident_formatted,
-						cheque_balance = 0.0)
+						cheque_balance = '{:.8f}'.format(0.0),
+						show_payout_details = show_payout_details)
 					return
 				else:
 					self.render('main.html',
 						cheque_ident = cheque_ident,
 						cheque_ident_requested = 'invalid',
-						cheque_balance = 0.0)
+						cheque_balance = '{:.8f}'.format(0.0),
+						show_payout_details = show_payout_details)
 					return
 		else:
 			# check recaptcha
@@ -183,15 +188,19 @@ class MainPage(Handler):
 					# captcha success
 					if cryptotools.validate_btc_address(receiver_address):
 						error_code, message = cryptotools.redeem(cheque_ident_requested_filtered, verification_code_filtered, verification_index_request, receiver_address)
+						error_message_verification = message
+						error_message_address = None
 					else:
 						error_code = 201
-						message = 'Receiver address is no valid Bitcoin address.'
+						error_message_verification = None
+						error_message_address = 'Receiver address invalid'
 					if error_code == 0:
 						self.render('main.html',
 									cheque_ident = cheque_ident_formatted,
 									cheque_ident_requested = cheque_ident_formatted,
 									cheque_public_address = cheque_public_address,
 									cheque_balance = 0.0,
+									show_payout_details = show_payout_details,
 									redeem_transaction = message)
 						return
 					else:
@@ -206,11 +215,13 @@ class MainPage(Handler):
 									service_fee = service_fee,
 									transaction_fee = transaction_fee,
 									total_payout = total_payout,
-									error_message = message)
+									show_payout_details = show_payout_details,
+									error_message_verification = error_message_verification,
+									error_message_address = error_message_address)
 						return
 
 			# return recaptcha error
-			message = 'captcha failed'
+			error_message_captcha = 'captcha failed'
 			self.render('main.html',
 						cheque_ident = cheque_ident_formatted,
 						cheque_ident_requested = cheque_ident_formatted,
@@ -221,8 +232,9 @@ class MainPage(Handler):
 						receiver_address = receiver_address,
 						service_fee = service_fee,
 						transaction_fee = transaction_fee,
+						show_payout_details = show_payout_details,
 						total_payout = total_payout,
-						error_message = message)
+						error_message_captcha = error_message_captcha)
 			return
 
 
