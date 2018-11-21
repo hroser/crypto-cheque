@@ -100,14 +100,24 @@ margin-bottom: 15px
 	<meta name="keywords" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<style type="text/css"></style>
-	
+
+  <!-- recaptcha -->
+  <script src='https://www.google.com/recaptcha/api.js'></script>
+
 	<!-- Global site tag (gtag.js) - Google Analytics -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-109506841-1"></script>
+
+  <script>
+  function onSubmit(token) {
+	   document.getElementById("check_balance_form").submit();
+  }
+  </script>
+
 	<script>
 	  window.dataLayer = window.dataLayer || [];
 	  function gtag(){dataLayer.push(arguments);}
 	  gtag('js', new Date());
-	
+
 	  gtag('config', 'UA-109506841-1');
 	  gtag('config', 'AW-960369895');
 	</script>
@@ -119,7 +129,7 @@ margin-bottom: 15px
 <body>
 
 <h1 align="center">Crypto Cheque</h1>
-		
+
 	<form id="check_balance_form" method="POST" enctype="multipart/form-data">
 		Enter cheque ID:
 		<br><br>
@@ -128,7 +138,7 @@ margin-bottom: 15px
 		<br><br>
 		{% if cheque_balance != None %}
                 ID: {{cheque_ident_requested}}<br>
-				Balance: {{cheque_balance}} BTC 
+				Balance: {{cheque_balance}} BTC
 				{% if cheque_public_address %}
         (<a href="https://live.blockcypher.com/btc/address/{{cheque_public_address}}/" target="_blank" style="color: black;">show details</a>)
         {% endif %}
@@ -141,34 +151,30 @@ margin-bottom: 15px
 				Verification code {{verification_index_chars}}: <input type="text" style="font: 16px sans-serif; width: 260px;" name="verification_code" value="{{verification_code}}"><br>
 				<input type="hidden" name="cheque_ident_requested" value="{{cheque_ident_requested}}">
 				<input type="hidden" name="verification_index" value="{{verification_index}}">
-				<input type="submit" name="redeem" value="Redeem">
+        <button class="g-recaptcha"	data-sitekey="6LcsKHwUAAAAAAIVGe8GsSpjRd9Yuk-gesAxiXkj" data-callback="onSubmit">Redeem</button>
         {% endif %}
 				<br><br>
-				
+
                 {% if redeem_transaction %}
                 Successfully redeemed:<br>
-                <a href="https://live.blockcypher.com/btc/tx/{{redeem_transaction}}/" target="_blank" style="color: black;">Show transaction</a> 
+                <a href="https://live.blockcypher.com/btc/tx/{{redeem_transaction}}/" target="_blank" style="color: black;">Show transaction</a>
                 <br><br>
                 {% endif %}
         {% endif %}
-		{% if error_message %}
-        <br><br>
-        <font color="red">{{error_message}}</font>
-        <br><br>
-        {% endif %}
+		{% if error_message %} <font color="red">{{error_message}}</font> <br><br> {% endif %}
 		</center>
 		<br>
 	</div>
 		<br>
-		<a href="/print" target="_blank" style="color: black;">Print Crypto Cheques</a> 
+		<a href="/print" target="_blank" style="color: black;">Print Crypto Cheques</a>
 		<br>
 	</form>
-	
+
 		<div class="centerinfo">
 		<br><br>
 		Crypto-Cheque is a open source project:
 		<br>
-		<a href="https://github.com/hroser/crypto-cheque" style="color: black;">https://github.com/hroser/crypto-cheque</a> 
+		<a href="https://github.com/hroser/crypto-cheque" style="color: black;">https://github.com/hroser/crypto-cheque</a>
 		</div>
 
 	<br><br><br><br>

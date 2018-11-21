@@ -37,13 +37,13 @@ import webapp2
 
 from google.appengine.api import app_identity
 
-# for using datastore 
+# for using datastore
 from google.appengine.ext import ndb
 from google.appengine.api import images
 from base64 import b64encode
 
 # validate user inputs
-# import validate 
+# import validate
 
 # use pygl tools
 # import pygltools as pt
@@ -56,7 +56,7 @@ import json
 # tell jinja2 where to look for files
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
-	
+
 class Handler(webapp2.RequestHandler):
 	def write(self, *a, **kw):
 		self.response.out.write(*a, **kw)
@@ -72,10 +72,10 @@ class Handler(webapp2.RequestHandler):
 
 class PrintChequesPage(Handler):
 	def get(self):
-		
+
 		# number of cheques to print
 		NUMBER_OF_CHEQUES = 3
-		
+
 		# get cheques and images
 		cheque_dates = []
 		for i in range(NUMBER_OF_CHEQUES):
@@ -84,15 +84,15 @@ class PrintChequesPage(Handler):
 			ident_formatted = ' '.join([ident[:5], ident[5:10], ident[10:]])
 			cheque_data = {'ident':ident_formatted, 'verification_chars':verification_chars, 'verification_bars':verification_bars, 'cheque':cheque}
 			cheque_dates.append(cheque_data)
-		
+
 		# render page
 		self.render('print.html', cheque_dates = cheque_dates)
-			
+
 class MainPage(Handler):
 	def get(self):
-		# get ident 
+		# get ident
 		cheque_ident = self.request.get('q')
-		
+
 		self.render('main.html', cheque_ident = cheque_ident, cheque_balance = None)
 		'''
 		if cheque_ident:
@@ -103,7 +103,7 @@ class MainPage(Handler):
 			# render main page
 			self.render('main.html', cheque_ident = cheque_ident, cheque_balance = None)
 		'''
-		
+
 	def post(self):
 		# get parameters
 		check_balance = self.request.get('check_balance')
@@ -117,8 +117,11 @@ class MainPage(Handler):
 		verification_index_request = self.request.get('verification_index')
 		verification_code = self.request.get('verification_code')
 		verification_code_filtered = filter(lambda x: x.isalpha(), verification_code)
-		
-		
+		recaptcha_response = self.request.get('g-recaptcha-response')
+
+		recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify'
+		values = {'secret': "6LcsKHwUAAAAAB3UkPVyeRErujY0G7cgq7Z6UWqh", 'response': recaptcha_response}
+
 		verification_index_list = []
 		base = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 		for i in range(4):
@@ -126,13 +129,13 @@ class MainPage(Handler):
 				verification_index_list.append(base[i]+base[j+4])
 		verification_index_new = random.randint(0,15)
 		verification_index_chars = verification_index_list[verification_index_new]
-		
+
 		cheque_balance, cheque_public_address = cryptotools.get_balance(cheque_ident_filtered)
-		
+
 		if cheque_balance and (cheque_balance > 0):
 			service_fee, transaction_fee = cryptotools.get_fees(cheque_balance)
 			total_payout = cheque_balance - service_fee - transaction_fee
-			
+
 			cheque_balance = float(cheque_balance)/100000000
 			service_fee = float(service_fee)/100000000
 			transaction_fee = float(transaction_fee)/100000000
@@ -141,64 +144,89 @@ class MainPage(Handler):
 			service_fee = 0.0
 			transaction_fee = 0.0
 			total_payout = 0.0
-		
+
 		if check_balance:
 			# render main page
 			if cheque_balance is not None:
-				self.render('main.html', 
-					cheque_ident = cheque_ident_formatted, 
-					cheque_ident_requested = cheque_ident_formatted, 
-					cheque_public_address = cheque_public_address, 
-					cheque_balance = cheque_balance, 
-					verification_index_chars = verification_index_chars, 
+				self.render('main.html',
+					cheque_ident = cheque_ident_formatted,
+					cheque_ident_requested = cheque_ident_formatted,
+					cheque_public_address = cheque_public_address,
+					cheque_balance = cheque_balance,
+					verification_index_chars = verification_index_chars,
 					verification_index = verification_index_new,
 					service_fee = service_fee,
 					transaction_fee = transaction_fee,
 					total_payout = total_payout)
 			else:
 				if len(cheque_ident_filtered) == 15:
-					self.render('main.html', 
-						cheque_ident = cheque_ident, 
-						cheque_ident_requested = cheque_ident_formatted, 
+					self.render('main.html',
+						cheque_ident = cheque_ident,
+						cheque_ident_requested = cheque_ident_formatted,
 						cheque_balance = 0.0)
+					return
 				else:
-					self.render('main.html', 
-						cheque_ident = cheque_ident, 
-						cheque_ident_requested = 'invalid', 
+					self.render('main.html',
+						cheque_ident = cheque_ident,
+						cheque_ident_requested = 'invalid',
 						cheque_balance = 0.0)
-		elif redeem:
-			if cryptotools.validate_btc_address(receiver_address):
-				error_code, message = cryptotools.redeem(cheque_ident_requested_filtered, verification_code_filtered, verification_index_request, receiver_address)
-			else:
-				error_code = 201
-				message = 'Receiver address is no valid Bitcoin address.'
-			if error_code == 0:
-				self.render('main.html', 
-					cheque_ident = cheque_ident_formatted, 
-					cheque_ident_requested = cheque_ident_formatted, 
-					cheque_public_address = cheque_public_address, 
-					cheque_balance = 0.0, 
-					redeem_transaction = message)
-			else:
-				self.render('main.html', 
-					cheque_ident = cheque_ident_formatted, 
-					cheque_ident_requested = cheque_ident_formatted, 
-					cheque_public_address = cheque_public_address, 
-					cheque_balance = cheque_balance, 
-					verification_index_chars = verification_index_chars, 
-					verification_index = verification_index_new, 
-					receiver_address = receiver_address,
-					service_fee = service_fee,
-					transaction_fee = transaction_fee,
-					total_payout = total_payout,
-					error_message = message)
-			
+					return
+		else:
+			# check recaptcha
+			if recaptcha_response:
+				# get info from recaptcha server
+				data = urllib.urlencode(values)
+				req = urllib2.Request(recaptcha_url, data)
+				response = urllib2.urlopen(req)
+				result = json.load(response)
+				if result['success']:
+					# captcha success
+					if cryptotools.validate_btc_address(receiver_address):
+						error_code, message = cryptotools.redeem(cheque_ident_requested_filtered, verification_code_filtered, verification_index_request, receiver_address)
+					else:
+						error_code = 201
+						message = 'Receiver address is no valid Bitcoin address.'
+					if error_code == 0:
+						self.render('main.html',
+									cheque_ident = cheque_ident_formatted,
+									cheque_ident_requested = cheque_ident_formatted,
+									cheque_public_address = cheque_public_address,
+									cheque_balance = 0.0,
+									redeem_transaction = message)
+						return
+					else:
+						self.render('main.html',
+									cheque_ident = cheque_ident_formatted,
+									cheque_ident_requested = cheque_ident_formatted,
+									cheque_public_address = cheque_public_address,
+									cheque_balance = cheque_balance,
+									verification_index_chars = verification_index_chars,
+									verification_index = verification_index_new,
+									receiver_address = receiver_address,
+									service_fee = service_fee,
+									transaction_fee = transaction_fee,
+									total_payout = total_payout,
+									error_message = message)
+						return
+
+			# return recaptcha error
+			message = 'captcha failed'
+			self.render('main.html',
+						cheque_ident = cheque_ident_formatted,
+						cheque_ident_requested = cheque_ident_formatted,
+						cheque_public_address = cheque_public_address,
+						cheque_balance = cheque_balance,
+						verification_index_chars = verification_index_chars,
+						verification_index = verification_index_new,
+						receiver_address = receiver_address,
+						service_fee = service_fee,
+						transaction_fee = transaction_fee,
+						total_payout = total_payout,
+						error_message = message)
+			return
+
+
 app = webapp2.WSGIApplication([
     webapp2.Route(r'/print', handler = PrintChequesPage),
     webapp2.Route(r'/', handler = MainPage),
 ], debug=True)
-
-
-
-
-
