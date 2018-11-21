@@ -88,7 +88,7 @@ vertical-align:top;
 width: 280px;
 margin-bottom: 15px
 }
-	
+
 .rotate {
 /* Safari */
 -webkit-transform: rotate(90deg);
@@ -123,14 +123,14 @@ white-space:pre;
 	<meta name="keywords" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<style type="text/css"></style>
-	
+
 	<!-- Global site tag (gtag.js) - Google Analytics -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-109506841-1"></script>
 	<script>
 	  window.dataLayer = window.dataLayer || [];
 	  function gtag(){dataLayer.push(arguments);}
 	  gtag('js', new Date());
-	
+
 	  gtag('config', 'UA-109506841-1');
 	  gtag('config', 'AW-960369895');
 	</script>
@@ -142,7 +142,7 @@ white-space:pre;
 <body onload="window.print();">
 
 	{% for cheque_data in cheque_dates %}
-	
+
 	<hr>
 	<div style="width: 100%;">
         <div style="width: 68%; float:left">
@@ -155,13 +155,13 @@ white-space:pre;
             Date: __________________________   Signature: __________________________<br><br><br>
             <div class="strip">
 VERIFICATION:
-							
-{{cheque_data['verification_bars'][0]}}  {{cheque_data['verification_bars'][2]}}  
+
+{{cheque_data['verification_bars'][0]}}  {{cheque_data['verification_bars'][2]}}
 {{cheque_data['verification_bars'][1]}}  {{cheque_data['verification_bars'][3]}}
             </div>
             <br>
         </div>
-        
+
         <div style="width: 20%; float:left">
         <center>
 					 <br><br>
@@ -171,10 +171,10 @@ VERIFICATION:
            <p style="margin-bottom:5px; margin-top:0mm;"><small>CHECK BALANCE:</small></p>
            <img src="http://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://live.blockcypher.com/btc/address/{{cheque_data['cheque'].public_address}}/" alt="" title=""><br><br>
            <p style="margin-bottom:3px; margin-top:0mm;"><small>REDEEM:</small></p>
-		   <span style="font-size: 10px !important; margin-top:0mm;">www.crypto-cheque.com</span><br><br>
+		   <span style="font-size: 8px !important; margin-top:0mm;">www.crypto-cheque.com</span><br><br>
         </center>
         </div>
-        
+
         <div style="width: 12%; float:left">
         <center>
 						<br><br>
@@ -193,7 +193,7 @@ VERIFICATION:
     </div>
   <br>
 	<br clear="all" />
-	
+
   {% endfor %}
 	<hr>
 	<br>

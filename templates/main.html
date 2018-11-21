@@ -6,7 +6,7 @@
 
 body {
 font-family: sans-serif;
-max-width: 640px;
+max-width: 450px;
 margin: 0 auto;
 }
 
@@ -28,7 +28,7 @@ margin-left: 3%;
 
 .error {
 color: red;
-font: 11px sans-serif;
+font: 12px sans-serif;
 }
 
 .url-available {
@@ -48,8 +48,8 @@ margin: 0 auto;
 }
 
 .centerinfo {
-width: 90%;
-max-width: 520px;
+width: 100%;
+max-width: 450px;
 margin: 0 auto;
 font: 12px sans-serif;
 }
@@ -127,42 +127,56 @@ margin-bottom: 15px
 </head>
 
 <body>
-
-<h1 align="center">Crypto Cheque</h1>
-
+<br>
+<h2 align="center">Crypto Cheque</h2>
+<br>
 	<form id="check_balance_form" method="POST" enctype="multipart/form-data">
-		Enter cheque ID:
+		<span style="font-size: 12px !important;">Cheque ID:</span><br>
+    <input type="text" style="font: 16px sans-serif; width: 250px;" name="cheque_ident" value="{{cheque_ident}}">
+		<input type="submit" name="check_balance" style="width: 120px;" value="Check balance">
 		<br><br>
-		<input type="text" style="font: 16px sans-serif; width: 260px;" name="cheque_ident" value="{{cheque_ident}}">
-		<input type="submit" name="check_balance" value="Check balance">
-		<br><br>
+
 		{% if cheque_balance != None %}
-                ID: {{cheque_ident_requested}}<br>
+        ID: {{cheque_ident_requested}}<br>
 				Balance: {{cheque_balance}} BTC
 				{% if cheque_public_address %}
         (<a href="https://live.blockcypher.com/btc/address/{{cheque_public_address}}/" target="_blank" style="color: black;">show details</a>)
         {% endif %}
 				<br>
+
         {% if cheque_balance != 0 %}
+
 				Service fee: {{service_fee}} BTC<br>
 				Transaction fee: {{transaction_fee}} BTC<br>
 				Total payout: {{total_payout}} BTC<br>
-				Send balance to BTC address: <input type="text" style="font: 16px sans-serif; width: 260px;" name="receiver_address" value="{{receiver_address}}">
-				Verification code {{verification_index_chars}}: <input type="text" style="font: 16px sans-serif; width: 260px;" name="verification_code" autocomplete="off" value="{{verification_code}}"><br>
+
+				<span style="font-size: 12px !important;">Send payout to BTC address:</span> <br>
+        <input type="text" style="font: 16px sans-serif; width: 260px;" name="receiver_address" value="{{receiver_address}}">
+        {% if error_message_address %}<span class="error">{{error_message_address}}</span><br>{% endif %}
+
+        <br><br>
+
+        <span style="font-size: 12px !important;">Verification code <b>{{verification_index_chars}}</b>:</span> <br>
+				<input type="text" style="font: 16px sans-serif; width: 260px;" name="verification_code" autocomplete="off" value="{{verification_code}}">
+        {% if error_message_verification %}<span class="error">{{error_message_verification}}</span><br>{% endif %}
+
+        <br><br>
+
 				<input type="hidden" name="cheque_ident_requested" value="{{cheque_ident_requested}}">
 				<input type="hidden" name="verification_index" value="{{verification_index}}">
-        <button class="g-recaptcha"	data-sitekey="6LcsKHwUAAAAAAIVGe8GsSpjRd9Yuk-gesAxiXkj" data-callback="onSubmit">Redeem</button>
+
+        <button class="g-recaptcha"	data-sitekey="6LcsKHwUAAAAAAIVGe8GsSpjRd9Yuk-gesAxiXkj" data-callback="onSubmit" style="width: 100px;">Redeem</button>
         {% endif %}
 				<br><br>
 
-                {% if redeem_transaction %}
-                Successfully redeemed:<br>
-                <a href="https://live.blockcypher.com/btc/tx/{{redeem_transaction}}/" target="_blank" style="color: black;">Show transaction</a>
-                <br><br>
-                {% endif %}
-        {% endif %}
-		{% if error_message %} <font color="red">{{error_message}}</font> <br><br> {% endif %}
-		</center>
+      {% if redeem_transaction %}
+      Successfully redeemed (<a href="https://live.blockcypher.com/btc/tx/{{redeem_transaction}}/" target="_blank" style="color: black;">show transaction</a>)<br><br>
+      {% endif %}
+    {% endif %}
+
+		{% if error_message %}<span class="error">{{error_message_verification}}</span><br>{% endif %}
+
+    </center>
 		<br>
 	</div>
 		<br>
@@ -172,7 +186,7 @@ margin-bottom: 15px
 
 		<div class="centerinfo">
 		<br><br>
-		Crypto-Cheque is a open source project:
+		Crypto-Cheque is open source:
 		<br>
 		<a href="https://github.com/hroser/crypto-cheque" style="color: black;">https://github.com/hroser/crypto-cheque</a>
 		</div>
