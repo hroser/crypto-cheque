@@ -5,7 +5,7 @@
 <style type="text/css">
 
 body {
-font: 10px sans-serif;
+font: 10px monospace;
 max-width: 800px;
 margin: 0 auto;
 }
@@ -112,6 +112,12 @@ font-size: 7px;
 white-space:pre;
 }
 
+.data {
+font-family: monospace;
+font-size: 9px;
+white-space:pre;
+}
+
 </style>
 
 
@@ -148,11 +154,12 @@ white-space:pre;
         <div style="width: 68%; float:left">
 						<h2>Crypto Cheque</h2>
             <h4>ID: {{ cheque_data['ident'] }}</h4>
-					  <br>
-            To: ____________________________________________ Value: __________________<br><br><br><br>
-            From: ____________________________________________<br><br><br><br>
-            Memo: ____________________________________________<br><br><br><br>
-            Date: __________________________   Signature: __________________________<br><br><br>
+            <div class="data">
+To:   ___________________________________________________ Value: __________________<br><br><br>
+From: ___________________________________________________<br><br><br>
+Memo: ___________________________________________________<br><br><br>
+Date: _________________________________    Signature: _____________________________<br>
+            </div>
             <div class="strip">
 VERIFICATION:
 
@@ -167,7 +174,7 @@ VERIFICATION:
 					 <br><br>
 		   <p style="margin-bottom:5px; margin-top:0mm;"><small>DEPOSIT BTC:</small></p>
            <img src="http://api.qrserver.com/v1/create-qr-code/?size=80x80&data={{cheque_data['cheque'].public_address}}" alt="" title=""><br>
-           <span style="font-size: 6px !important;">{{cheque_data['cheque'].public_address}}</span><br><br><br>
+           <span style="font-size: 6px !important;">{{cheque_data['cheque'].public_address}}</span><br><br>
            <p style="margin-bottom:5px; margin-top:0mm;"><small>CHECK BALANCE:</small></p>
            <img src="http://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://live.blockcypher.com/btc/address/{{cheque_data['cheque'].public_address}}/" alt="" title=""><br><br>
            <p style="margin-bottom:3px; margin-top:0mm;"><small>REDEEM:</small></p>

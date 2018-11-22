@@ -6,7 +6,7 @@
 
 body {
 font: 16px sans-serif;
-max-width: 450px;
+max-width: 580px;
 margin: 0 auto;
 }
 
@@ -25,11 +25,21 @@ font: 15px sans-serif;
 
 .centerinfo {
 width: 100%;
-max-width: 450px;
 margin: 0 auto;
 font: 12px sans-serif;
 }
 
+.centertable {
+width: 70%;
+min-width: 380px;
+margin: 0 auto;
+}
+
+.inputtable {
+width: 85%;
+min-width: 380px;
+margin: 0 auto;
+}
 
 table, tr, td {
     border: none;
@@ -74,20 +84,40 @@ table, tr, td {
 
 <body>
 <br>
-<h2 align="center">Crypto Cheque</h2>
+<h2 style="font-family: monospace;" align="center">Crypto Cheque</h2>
 <br>
 	<form id="check_balance_form" method="POST" enctype="multipart/form-data">
-		<span class="label">Cheque ID:</span><br>
-    <input type="text" style="font: 16px sans-serif; width: 250px;" name="cheque_ident" value="{{cheque_ident}}">
-		<input type="submit" name="check_balance" style="width: 120px;" value="Check balance">
-		<br><br><br>
+
+    <table class="inputtable">
+    <col width="70%">
+    <col width="30%">
+      <tr>
+        <td>
+          <span class="label">Cheque ID:</span><br>
+          <input type="text" style="font: 15px sans-serif; width: 95%;" name="cheque_ident" value="{{cheque_ident}}">
+        </td>
+        <td valign="bottom">
+          <input type="submit" name="check_balance" style="width: 95%;" value="Check balance">
+        </td>
+      </tr>
+      <tr>
+        <td>
+        {% if error_message_id %}<span class="error">{{error_message_id}}</span><br>{% endif %}
+        </td>
+        <td>
+        </td>
+      </tr>
+    </table>
+
+    <br>
 
 		{% if cheque_balance != None %}
-
+      <br><br>
+      <div class="centertable">
       <table class="table" style="width:100%">
-      <col width="80">
-      <col width="120">
-      <col width="100">
+      <col width="40%">
+      <col width="40%">
+      <col width="20%">
         <tr>
           <td>ID:</td>
           <td align="right">{{cheque_ident_requested}}</td>
@@ -95,66 +125,111 @@ table, tr, td {
         </tr>
         <tr>
           <td>Balance:</td>
-          <td align="right">{{cheque_balance}}</td>
-          <td>BTC {% if cheque_public_address %}(<a href="https://live.blockcypher.com/btc/address/{{cheque_public_address}}/" target="_blank" style="color: black;">show details</a>){% endif %}</td>
+          <td align="right">{{cheque_balance}} BTC</td>
+          <td>{% if cheque_public_address %}(<a href="https://live.blockcypher.com/btc/address/{{cheque_public_address}}/" target="_blank" style="color: black;">details</a>){% endif %}</td>
         </tr>
         {% if show_payout_details %}
         <tr>
           <td>Service fee:</td>
-          <td align="right">{{service_fee}}</td>
-          <td>BTC</td>
+          <td align="right">{{service_fee}} BTC</td>
+          <td></td>
         </tr>
         <tr>
           <td>Transaction fee:</td>
-          <td align="right">{{transaction_fee}}</td>
-          <td>BTC</td>
+          <td align="right">{{transaction_fee}} BTC</td>
+          <td></td>
         </tr>
         <tr>
           <td><b>Total payout:</b></td>
-          <td align="right">{{total_payout}}</td>
-          <td>BTC</td>
+          <td align="right">{{total_payout}} BTC</td>
+          <td></td>
         </tr>
         {% endif %}
       </table>
       <br><br>
+      </div>
 
       {% if show_payout_details %}
+
         <input type="hidden" name="cheque_ident_requested" value="{{cheque_ident_requested}}">
         <input type="hidden" name="verification_index" value="{{verification_index}}">
 
-  			<span class="label">Send payout to BTC address:</span> <br>
-        <input type="text" style="font: 16px sans-serif; width: 250px;" name="receiver_address" value="{{receiver_address}}">
-        {% if error_message_address %}<br><span class="error">{{error_message_address}}</span><br>{% endif %}
+        <table class="inputtable">
+        <col width="70%">
+        <col width="30%">
+          <tr>
+            <td>
+              <span class="label">Send payout to BTC address:</span> <br>
+              <input type="text" style="font: 15px sans-serif; width: 95%;" name="receiver_btc_adr" value="{{receiver_btc_adr}}">
+            </td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <td>
+            {% if error_message_address %}<span class="error">{{error_message_address}}</span><br>{% endif %}
+            </td>
+            <td>
+            </td>
+          </tr>
+        </table>
 
-        <br><br>
+        <br>
 
-        <span class="label">Verification code <b>{{verification_index_chars}}</b>:</span> <br>
-  			<input type="text" style="font: 16px sans-serif; width: 250px;" name="verification_code" autocomplete="off" value="{{verification_code}}"><br><br>
-        <button class="g-recaptcha"	data-sitekey="6LcsKHwUAAAAAAIVGe8GsSpjRd9Yuk-gesAxiXkj" data-callback="onSubmit" style="width: 120px">Redeem</button>
-        {% if error_message_verification %}<br><span class="error">{{error_message_verification}}</span><br>{% endif %}
-        {% if error_message_captcha %}<br><span class="error">{{error_message_captcha}}</span><br>{% endif %}
+        <table class="inputtable">
+        <col width="70%">
+        <col width="30%">
+          <tr>
+            <td>
+              <span class="label">Verification code <b>{{verification_index_chars}}</b>:</span><br>
+              {% if verification_index_chars %}
+              <input type="text" style="font: 15px sans-serif; width: 95%;" name="verification_code" autocomplete="off" placeholder="Combine lines >>{{verification_index_chars[0]}} and >>{{verification_index_chars[1]}} on your cheque" value="{{verification_code}}">
+              {% else %}
+              <input type="text" style="font: 15px sans-serif; width: 95%;" name="verification_code" autocomplete="off" value="{{verification_code}}">
+              {% endif %}
+            </td>
+            <td valign="bottom">
+              <button class="g-recaptcha"	data-sitekey="6LcsKHwUAAAAAAIVGe8GsSpjRd9Yuk-gesAxiXkj" data-callback="onSubmit" style="width: 95%">Redeem</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+            {% if error_message_verification %}<span class="error">{{error_message_verification}}</span><br>{% endif %}
+            {% if error_message_captcha %}<span class="error">{{error_message_captcha}}</span><br>{% endif %}
+            </td>
+            <td>
+            </td>
+          </tr>
+        </table>
+
 
         <br><br>
       {% endif %}
 
       {% if redeem_transaction %}
-      <b>Successfully redeemed</b> (<a href="https://live.blockcypher.com/btc/tx/{{redeem_transaction}}/" target="_blank" style="color: black;">show transaction</a>)<br><br>
+      <center>
+      <br>
+      <b>Payout successful</b> (<a href="https://live.blockcypher.com/btc/tx/{{redeem_transaction}}/" target="_blank" style="color: black;">show transaction</a>)<br><br>
+      <br>
+      </center>
       {% endif %}
 
     {% endif %}
-
-
-
-    </center>
 	</div>
-		<br>
+
+    <center>
+		<br><br>
 		<a href="/print" target="_blank" style="color: black;">Print Crypto Cheques</a>
-		<br>
+		<br><br>
+    </center>
+
 	</form>
 
 		<div class="centerinfo">
 		<br><br>
+    <center>
 		Crypto-Cheque is open source: <a href="https://github.com/hroser/crypto-cheque" style="color: black;">https://github.com/hroser/crypto-cheque</a>
+    </center>
 		</div>
 
 	<br><br><br><br>

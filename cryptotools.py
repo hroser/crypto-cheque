@@ -52,7 +52,6 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
         return 103, 'Error: Balance too low for payout. Minimum payout amout is {:.8f} BTC.'.format(float(intget_blockchain_overview()['low_fee_per_kb'])/100000000)
 
     payout = int(balance - service_fee - transaction_fee)
-    preference = 'low'
   except Exception as e:
     logging.error(e)
     return 102, 'API error 102.'
@@ -65,7 +64,9 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
     outputs = [{'address': public_address_receiver, 'value': payout}]
 
   try:
-    unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference=preference)
+    unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference='low')
+    unsigned_tx['tx']['preference'] = 'medium'
+    logging.debug('unsigned_tx = ' + str(unsigned_tx))
   except Exception as e:
     logging.error(e)
     return 104, 'API error 104.'
@@ -75,8 +76,8 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
   pubkey_list = [public_key_sender]
   try:
     tx_signatures = make_tx_signatures(txs_to_sign=unsigned_tx['tosign'], privkey_list=privkey_list, pubkey_list=pubkey_list)
+    logging.debug('tx_signatures = ' + str(tx_signatures))
   except Exception as e:
-    logging.error(e)
     return 105, 'Verification failed'
 
   if 'errors' in tx_signatures:
@@ -85,6 +86,7 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
   # push transaction
   try:
     broadcasted = broadcast_signed_transaction(unsigned_tx=unsigned_tx, signatures=tx_signatures, pubkeys=pubkey_list, coin_symbol='btc', api_key=api_key)
+    logging.debug('broadcasted = ' + str(broadcasted))
   except Exception as e:
     logging.error(e)
     return 107, 'API error 107.'
@@ -115,7 +117,7 @@ def get_fees(balance):
   try:
     medium_fees = int(get_blockchain_overview()['medium_fee_per_kb'])
     low_fees = int(get_blockchain_overview()['low_fee_per_kb'])
-    transaction_fee = int(medium_fees*0.5)
+    transaction_fee = int(medium_fees)
   except Exception as e:
     logging.error(e)
     return 0, 0
