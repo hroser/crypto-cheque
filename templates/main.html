@@ -30,8 +30,8 @@ font: 12px sans-serif;
 }
 
 .centertable {
-width: 70%;
-min-width: 380px;
+width: 60%;
+min-width: 320px;
 margin: 0 auto;
 }
 
@@ -83,9 +83,9 @@ table, tr, td {
 </head>
 
 <body>
-<br>
+<br><br><br>
 <h2 style="font-family: monospace;" align="center">Crypto Cheque</h2>
-<br>
+<br><br>
 	<form id="check_balance_form" method="POST" enctype="multipart/form-data">
 
     <table class="inputtable">
@@ -112,38 +112,34 @@ table, tr, td {
     <br>
 
 		{% if cheque_balance != None %}
-      <br><br>
+      <br>
       <div class="centertable">
       <table class="table" style="width:100%">
-      <col width="40%">
-      <col width="40%">
-      <col width="20%">
+      <col width="50%">
+      <col width="50%">
         <tr>
           <td>ID:</td>
           <td align="right">{{cheque_ident_requested}}</td>
-          <td></td>
         </tr>
         <tr>
-          <td>Balance:</td>
+          <td>Balance {% if cheque_public_address %}(<a href="https://live.blockcypher.com/btc/address/{{cheque_public_address}}/" target="_blank" style="color: black;">details</a>){% endif %}:</td>
           <td align="right">{{cheque_balance}} BTC</td>
-          <td>{% if cheque_public_address %}(<a href="https://live.blockcypher.com/btc/address/{{cheque_public_address}}/" target="_blank" style="color: black;">details</a>){% endif %}</td>
         </tr>
         {% if show_payout_details %}
-        <tr>
-          <td>Service fee:</td>
-          <td align="right">{{service_fee}} BTC</td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>Transaction fee:</td>
-          <td align="right">{{transaction_fee}} BTC</td>
-          <td></td>
-        </tr>
-        <tr>
-          <td><b>Total payout:</b></td>
-          <td align="right">{{total_payout}} BTC</td>
-          <td></td>
-        </tr>
+					{% if show_service_fee %}
+					<tr>
+						<td>Service fee 1.5%:</td>
+						<td align="right">{{service_fee}} BTC</td>
+					</tr>
+					{% endif %}
+					<tr>
+						<td>Transaction fee:</td>
+						<td align="right">{{transaction_fee}} BTC</td>
+					</tr>
+					<tr>
+						<td><b>Total payout:</b></td>
+						<td align="right"><b>{{total_payout}} BTC<b></td>
+					</tr>
         {% endif %}
       </table>
       <br><br>

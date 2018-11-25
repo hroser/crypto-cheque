@@ -106,7 +106,7 @@ class MainPage(Handler):
 		cheque_ident_filtered = filter(lambda x: x.isdigit(), cheque_ident)
 		cheque_ident_requested_filtered = filter(lambda x: x.isdigit(), cheque_ident_requested)
 		cheque_ident_formatted = '-'.join([cheque_ident_filtered[i:i+5] for i in range(0, len(cheque_ident_filtered), 5)])
-		receiver_btc_adr = self.request.get('receiver_btc_adr')
+		receiver_btc_adr = self.request.get('receiver_btc_adr').strip()
 		verification_index_request = self.request.get('verification_index')
 		verification_code = self.request.get('verification_code')
 		verification_code_filtered = filter(lambda x: x.isalpha(), verification_code)
@@ -128,18 +128,20 @@ class MainPage(Handler):
 		if cheque_balance and (cheque_balance > 0):
 			service_fee, transaction_fee = cryptotools.get_fees(cheque_balance)
 			total_payout = cheque_balance - service_fee - transaction_fee
-
+			show_service_fee = (service_fee != 0)
+			show_payout_details = True
 			cheque_balance = '{:.8f}'.format(float(cheque_balance)/100000000)
 			service_fee = '{:.8f}'.format(float(service_fee)/100000000)
 			transaction_fee = '{:.8f}'.format(float(transaction_fee)/100000000)
 			total_payout = '{:.8f}'.format(float(total_payout)/100000000)
-			show_payout_details = True
+			
 		else:
+			show_payout_details = False
+			show_service_fee = False
 			service_fee = '{:.8f}'.format(0.0)
 			transaction_fee = '{:.8f}'.format(0.0)
 			total_payout = '{:.8f}'.format(0.0)
-			show_payout_details = False
-
+			
 		if check_balance:
 			# render main page
 			if cheque_balance is not None:
@@ -153,22 +155,18 @@ class MainPage(Handler):
 					service_fee = service_fee,
 					transaction_fee = transaction_fee,
 					total_payout = total_payout,
-					show_payout_details = show_payout_details)
+					show_payout_details = show_payout_details,
+					show_service_fee = show_service_fee,)
 			else:
 				if len(cheque_ident_filtered) == 15:
-					self.render('main.html',
-						cheque_ident = cheque_ident,
-						cheque_ident_requested = cheque_ident_formatted,
-						cheque_balance = '{:.8f}'.format(0.0),
-						show_payout_details = show_payout_details)
-					return
+					error_message_id = "ID not found"
 				else:
 					error_message_id = "Invalid ID"
-					self.render('main.html',
+				self.render('main.html',
 						cheque_ident = cheque_ident,
 						cheque_balance = None,
-						error_message_id = error_message_id)
-					return
+						error_message_id = error_message_id)	
+				return
 		else:
 			# check recaptcha
 			if recaptcha_response:
@@ -194,6 +192,7 @@ class MainPage(Handler):
 									cheque_public_address = cheque_public_address,
 									cheque_balance = 0.0,
 									show_payout_details = show_payout_details,
+									show_service_fee = show_service_fee,
 									redeem_transaction = message)
 						return
 					else:
@@ -209,6 +208,7 @@ class MainPage(Handler):
 									transaction_fee = transaction_fee,
 									total_payout = total_payout,
 									show_payout_details = show_payout_details,
+									show_service_fee = show_service_fee,
 									error_message_verification = error_message_verification,
 									error_message_address = error_message_address)
 						return
@@ -226,6 +226,7 @@ class MainPage(Handler):
 						service_fee = service_fee,
 						transaction_fee = transaction_fee,
 						show_payout_details = show_payout_details,
+						show_service_fee = show_service_fee,
 						total_payout = total_payout,
 						error_message_captcha = error_message_captcha)
 			return
