@@ -30,8 +30,8 @@ font: 12px sans-serif;
 }
 
 .centertable {
-width: 60%;
-min-width: 320px;
+width: 70%;
+min-width: 420px;
 margin: 0 auto;
 }
 
@@ -115,8 +115,9 @@ table, tr, td {
       <br>
       <div class="centertable">
       <table class="table" style="width:100%">
-      <col width="50%">
-      <col width="50%">
+      <col width="35%">
+      <col width="40%">
+			<col width="35%">
         <tr>
           <td>ID:</td>
           <td align="right">{{cheque_ident_requested}}</td>
@@ -124,21 +125,25 @@ table, tr, td {
         <tr>
           <td>Balance {% if cheque_public_address %}(<a href="https://live.blockcypher.com/btc/address/{{cheque_public_address}}/" target="_blank" style="color: black;">details</a>){% endif %}:</td>
           <td align="right">{{cheque_balance}} BTC</td>
+					<td align="right">{% if cheque_balance_usd %}({{cheque_balance_usd}} USD){% endif %}</td>
         </tr>
         {% if show_payout_details %}
 					{% if show_service_fee %}
 					<tr>
 						<td>Service fee 1.5%:</td>
 						<td align="right">{{service_fee}} BTC</td>
+						<td align="right">{% if service_fee_usd %}({{service_fee_usd}} USD){% endif %}</td>
 					</tr>
 					{% endif %}
 					<tr>
-						<td>Transaction fee:</td>
+						<td>Network fee:</td>
 						<td align="right">{{transaction_fee}} BTC</td>
+						<td align="right">{% if transaction_fee_usd %}({{transaction_fee_usd}} USD){% endif %}</td>
 					</tr>
 					<tr>
 						<td><b>Total payout:</b></td>
 						<td align="right"><b>{{total_payout}} BTC<b></td>
+							<td align="right">{% if total_payout_usd %}({{total_payout_usd}} USD){% endif %}</td>
 					</tr>
         {% endif %}
       </table>

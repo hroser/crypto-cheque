@@ -114,6 +114,8 @@ class MainPage(Handler):
 
 		recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify'
 		values = {'secret': "6LcsKHwUAAAAAB3UkPVyeRErujY0G7cgq7Z6UWqh", 'response': recaptcha_response}
+		
+		echange_rate_usd = cryptotools.get_exchange_rate_usd()
 
 		verification_index_list = []
 		base = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
@@ -128,33 +130,48 @@ class MainPage(Handler):
 		if cheque_balance and (cheque_balance > 0):
 			service_fee, transaction_fee = cryptotools.get_fees(cheque_balance)
 			total_payout = cheque_balance - service_fee - transaction_fee
-			show_service_fee = (service_fee != 0)
+			show_cheque_balance = True
 			show_payout_details = True
+			show_service_fee = (service_fee != 0)
+			cheque_balance_usd = '{:.2f}'.format(float(cheque_balance)*echange_rate_usd/100000000)
+			service_fee_usd = '{:.2f}'.format(float(service_fee)*echange_rate_usd/100000000)
+			transaction_fee_usd = '{:.2f}'.format(float(transaction_fee)*echange_rate_usd/100000000)
+			total_payout_usd = '{:.2f}'.format(float(total_payout)*echange_rate_usd/100000000)
 			cheque_balance = '{:.8f}'.format(float(cheque_balance)/100000000)
 			service_fee = '{:.8f}'.format(float(service_fee)/100000000)
 			transaction_fee = '{:.8f}'.format(float(transaction_fee)/100000000)
 			total_payout = '{:.8f}'.format(float(total_payout)/100000000)
 			
 		else:
+			show_cheque_balance = (cheque_balance is not None)
 			show_payout_details = False
 			show_service_fee = False
+			cheque_balance_usd = '{:.2f}'.format(0.0)
+			service_fee_usd = '{:.2f}'.format(0.0)
+			transaction_fee_usd = '{:.2f}'.format(0.0)
+			total_payout_usd = '{:.2f}'.format(0.0)
+			cheque_balance = '{:.8f}'.format(0.0)
 			service_fee = '{:.8f}'.format(0.0)
 			transaction_fee = '{:.8f}'.format(0.0)
 			total_payout = '{:.8f}'.format(0.0)
 			
 		if check_balance:
 			# render main page
-			if cheque_balance is not None:
+			if show_cheque_balance:
 				self.render('main.html',
 					cheque_ident = cheque_ident_formatted,
 					cheque_ident_requested = cheque_ident_formatted,
 					cheque_public_address = cheque_public_address,
-					cheque_balance = cheque_balance,
 					verification_index_chars = verification_index_chars,
 					verification_index = verification_index_new,
+					cheque_balance = cheque_balance,
 					service_fee = service_fee,
 					transaction_fee = transaction_fee,
 					total_payout = total_payout,
+					cheque_balance_usd = cheque_balance_usd,
+					service_fee_usd = service_fee_usd,
+					transaction_fee_usd = transaction_fee_usd,
+					total_payout_usd = total_payout_usd,
 					show_payout_details = show_payout_details,
 					show_service_fee = show_service_fee,)
 			else:
@@ -186,11 +203,14 @@ class MainPage(Handler):
 						error_message_verification = None
 						error_message_address = 'Invalid address'
 					if error_code == 0:
+						show_payout_details = False
+						show_service_fee = False
+						cheque_balance = '{:.8f}'.format(0.0)
 						self.render('main.html',
 									cheque_ident = cheque_ident_formatted,
 									cheque_ident_requested = cheque_ident_formatted,
 									cheque_public_address = cheque_public_address,
-									cheque_balance = 0.0,
+									cheque_balance = cheque_balance,
 									show_payout_details = show_payout_details,
 									show_service_fee = show_service_fee,
 									redeem_transaction = message)
@@ -207,6 +227,10 @@ class MainPage(Handler):
 									service_fee = service_fee,
 									transaction_fee = transaction_fee,
 									total_payout = total_payout,
+									cheque_balance_usd = cheque_balance_usd,
+									service_fee_usd = service_fee_usd,
+									transaction_fee_usd = transaction_fee_usd,
+									total_payout_usd = total_payout_usd,
 									show_payout_details = show_payout_details,
 									show_service_fee = show_service_fee,
 									error_message_verification = error_message_verification,
@@ -228,6 +252,10 @@ class MainPage(Handler):
 						show_payout_details = show_payout_details,
 						show_service_fee = show_service_fee,
 						total_payout = total_payout,
+						cheque_balance_usd = cheque_balance_usd,
+						service_fee_usd = service_fee_usd,
+						transaction_fee_usd = transaction_fee_usd,
+						total_payout_usd = total_payout_usd,
 						error_message_captcha = error_message_captcha)
 			return
 

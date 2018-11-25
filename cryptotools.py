@@ -10,6 +10,7 @@ from google.appengine.ext import ndb
 import base64
 import logging
 import json
+import urllib2
 
 # blockcypher api
 from blockcypher import get_address_overview
@@ -20,6 +21,7 @@ from blockcypher import get_blockchain_overview
 
 BLOCK_SIZE = 16
 SERVICE_FEE = 0.015
+SERVICE_FEE_LOWER_LIMIT = 1000
 
 b58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
@@ -54,7 +56,7 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
     payout = int(balance - service_fee - transaction_fee)
   except Exception as e:
     logging.error(e)
-    return 102, 'API error 102.'
+    return 102, 'Service error, please try again later (Error T102).'
 
   # create unsigned transaction
   inputs = [{'address': public_address_sender}]
@@ -69,7 +71,7 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
     logging.debug('unsigned_tx = ' + str(unsigned_tx))
   except Exception as e:
     logging.error(e)
-    return 104, 'API error 104.'
+    return 104, 'Service error, please try again later (Error T104).'
 
   # sign transaction
   privkey_list = [private_key_sender]
@@ -81,7 +83,7 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
     return 105, 'Verification failed'
 
   if 'errors' in tx_signatures:
-    return 106, 'API error 106.'
+    return 106, 'Service error, please try again later (Error T106).'
 
   # push transaction
   try:
@@ -89,10 +91,10 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
     logging.debug('broadcasted = ' + str(broadcasted))
   except Exception as e:
     logging.error(e)
-    return 107, 'API error 107.'
+    return 107, 'Service error, please try again later (Error T107).'
 
   if 'errors' in broadcasted:
-    return 108, 'API error 108.'
+    return 108, 'Service error, please try again later (Error T108).'
 
   return 0, broadcasted['tx']['hash']
 
@@ -122,7 +124,7 @@ def get_fees(balance):
     logging.error(e)
     return 0, 0
 
-  if int(balance * SERVICE_FEE) < 1000:
+  if int(balance * SERVICE_FEE) < SERVICE_FEE_LOWER_LIMIT:
     service_fee = 0
   else:
     service_fee = int(balance * SERVICE_FEE)   # lower limit for transaction is 546 satoshis
@@ -142,6 +144,19 @@ def validate_btc_address(address):
   except Exception as e:
     return False
   return True
+
+def get_exchange_rate_usd():
+  try:
+    #get usd exchange rate
+    ticker_url = 'https://blockchain.info/ticker'
+    req = urllib2.Request(ticker_url)
+    response = urllib2.urlopen(req)
+    result = json.load(response)
+    return float(result['USD']['last'])
+  except Exception as e:
+    logging.error(e)
+    return 1.0
+  
 
 def redeem(ident, verification_code, verification_index, receiver_address):
   logging.debug('redeeming ')
