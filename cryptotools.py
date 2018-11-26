@@ -156,7 +156,7 @@ def get_exchange_rate_usd():
   except Exception as e:
     logging.error(e)
     return 1.0
-  
+
 
 def redeem(ident, verification_code, verification_index, receiver_address):
   logging.debug('redeeming ')
@@ -241,10 +241,13 @@ def generateKey():
   return {'private_key': private_key,'public_key': public_key,'public_address': public_address}
 
 def generateIdent():
-  return ''.join(random.choice(string.digits) for _ in range(15))
-
-def generateIden():
-  return ''.join(random.choice(string.digits) for _ in range(15))
+    while True:
+        ident = ''.join(random.choice(string.digits) for _ in range(15))
+        ident_hash256 = hashlib.sha256(ident).hexdigest()
+        query = Cheque.query(Cheque.ident_sha256 == ident_hash256).fetch(1)
+        if len(query) == 0:
+            break
+    return ident
 
 def generateVerification():
   verification_master = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(6))

@@ -10,14 +10,6 @@ max-width: 800px;
 margin: 0 auto;
 }
 
-textarea {
-width: 94%;
-resize: none;
-overflow: hidden;
-min-height: 25px;
-margin-left: 3%;
-}
-
 .title{
 width: 94%;
 font: 30px sans-serif;
@@ -26,67 +18,13 @@ text-align: center;
 margin-left: 3%;
 }
 
-.error {
-color: red;
-font: 11px sans-serif;
-}
-
-.url-available {
-color: green;
-font: 11px sans-serif;
-}
-
-.center {
+.center
 margin: 0 auto;
 text-align: center;
 }
 
-.centertable {
-width: 90%;
-max-width: 520px;
-margin: 0 auto;
-}
-
-.centerinfo {
-width: 90%;
-max-width: 520px;
-margin: 0 auto;
-font: 12px sans-serif;
-}
-
-.centertopinfo {
-width: 90%;
-max-width: 520px;
-margin: 0 auto;
-font: 16px sans-serif;
-}
-
-.formatting-info {
-width: 94%;
-height: 10px;
-margin: 0 auto;
-font: 13px sans-serif;
-}
-
 table, tr, td {
     border: none;
-}
-
-img {
-max-width: 90%;
-}
-
-.createpagelabel {
-display: inline-block;
-vertical-align:top;
-width: 230px;
-}
-
-.createpageinput {
-display: inline-block;
-vertical-align:top;
-width: 280px;
-margin-bottom: 15px
 }
 
 .rotate {
@@ -147,6 +85,10 @@ white-space:pre;
 
 <body onload="window.print();">
 
+<hr>
+<h3 align="center">You are printing 3 Crypto-Cheques, please note:</h3>
+<h2 align="center">Print and use every ID only one time!</h2>
+
 	{% for cheque_data in cheque_dates %}
 
 	<hr>
@@ -171,21 +113,21 @@ VERIFICATION:
 
         <div style="width: 20%; float:left">
         <center>
-					 <br><br>
+					 <br>
 		   <p style="margin-bottom:5px; margin-top:0mm;"><small>DEPOSIT BTC:</small></p>
            <img src="http://api.qrserver.com/v1/create-qr-code/?size=80x80&data={{cheque_data['cheque'].public_address}}" alt="" title=""><br>
            <span style="font-size: 6px !important;">{{cheque_data['cheque'].public_address}}</span><br><br>
            <p style="margin-bottom:5px; margin-top:0mm;"><small>CHECK BALANCE:</small></p>
            <img src="http://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://live.blockcypher.com/btc/address/{{cheque_data['cheque'].public_address}}/" alt="" title=""><br><br>
            <p style="margin-bottom:3px; margin-top:0mm;"><small>REDEEM:</small></p>
-		   <span style="font-size: 8px !important; margin-top:0mm;">www.crypto-cheque.com</span><br><br><br>
+		   <span style="font-size: 8px !important; margin-top:0mm;">www.crypto-cheque.com</span><br><br>
         </center>
         </div>
 
         <div style="width: 12%; float:left">
         <center>
-						<br><br>
-            <small>VERIFICATION: </small><br><br><br><br>
+						<br>
+            <small>VERIFICATION: </small><br><br><br>
             <div class="rotate">
             {{cheque_data['verification_chars'][0]}}
             <br><br>
