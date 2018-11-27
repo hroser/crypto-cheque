@@ -12,6 +12,7 @@ handlers:
   upload: robots\.txt
   
 - url: /.*
+  secure: always
   script: main.app
   
 libraries:
