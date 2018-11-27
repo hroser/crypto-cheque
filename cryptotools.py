@@ -50,8 +50,8 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
     balance = int(addr_overview['final_balance'])
     service_fee, transaction_fee = get_fees(balance)
 
-    if transaction_fee == 0:
-        return 103, 'Error: Balance too low for payout. Minimum payout amout is {:.8f} BTC.'.format(float(intget_blockchain_overview()['low_fee_per_kb'])/100000000)
+    if balance < (transaction_fee + service_fee + 1000):
+        return 103, 'Error: Balance too low for payout. Minimum payout amout is {:.8f} BTC.'.format(float(transaction_fee + service_fee + 1000)/100000000.0)
 
     payout = int(balance - service_fee - transaction_fee)
   except Exception as e:
@@ -118,7 +118,6 @@ def get_fees(balance):
 
   try:
     medium_fees = int(get_blockchain_overview()['medium_fee_per_kb'])
-    low_fees = int(get_blockchain_overview()['low_fee_per_kb'])
     transaction_fee = int(medium_fees)
   except Exception as e:
     logging.error(e)
@@ -128,13 +127,6 @@ def get_fees(balance):
     service_fee = 0
   else:
     service_fee = int(balance * SERVICE_FEE)   # lower limit for transaction is 546 satoshis
-
-  if balance <= (transaction_fee + service_fee):
-    service_fee = 0
-    if balance > low_fees:
-      transaction_fee = int(low_fees)
-    else:
-      transaction_fee = 0
 
   return service_fee, transaction_fee
 
