@@ -6,7 +6,7 @@
 
 body {
 font: 16px sans-serif;
-max-width: 580px;
+width: 550px;
 margin: 0 auto;
 }
 
@@ -62,6 +62,7 @@ table, tr, td {
 
   <script>
   function onSubmit(token) {
+     document.getElementById("redeem_button").disabled = true;
 	   document.getElementById("check_balance_form").submit();
   }
   </script>
@@ -184,7 +185,13 @@ table, tr, td {
         <col width="30%">
           <tr>
             <td>
-              <span class="label">Verification code <b>{{verification_index_chars}}</b>:</span><br>
+              <span class="label">Verification code 
+                {% if error_message_verification %}
+                <b style="color: red">{{verification_index_chars}}</b>:
+                {% else %}
+                <b>{{verification_index_chars}}</b>:
+                {% endif %}
+              </span><br>
               {% if verification_index_chars %}
               <input type="text" style="font: 15px sans-serif; width: 95%;" name="verification_code" autocomplete="off" placeholder="Combine lines >>{{verification_index_chars[0]}} and >>{{verification_index_chars[1]}} on your cheque" value="{{verification_code}}">
               {% else %}
@@ -192,7 +199,7 @@ table, tr, td {
               {% endif %}
             </td>
             <td valign="bottom">
-              <button class="g-recaptcha"	data-sitekey="6LcsKHwUAAAAAAIVGe8GsSpjRd9Yuk-gesAxiXkj" data-callback="onSubmit" style="width: 95%">Redeem</button>
+              <button class="g-recaptcha" id="redeem_button" data-sitekey="6LcsKHwUAAAAAAIVGe8GsSpjRd9Yuk-gesAxiXkj" data-callback="onSubmit" style="width: 95%">Redeem</button>
             </td>
           </tr>
           <tr>
