@@ -113,6 +113,7 @@ class MainPage(Handler):
 		cheque_ident_filtered = filter(lambda x: x.isdigit(), cheque_ident)
 		cheque_ident_requested_filtered = filter(lambda x: x.isdigit(), cheque_ident_requested)
 		cheque_ident_formatted = '-'.join([cheque_ident_filtered[i:i+5] for i in range(0, len(cheque_ident_filtered), 5)])
+		cheque_ident_requested_formatted = '-'.join([cheque_ident_requested_filtered[i:i+5] for i in range(0, len(cheque_ident_requested_filtered), 5)])
 		receiver_btc_adr = self.request.get('receiver_btc_adr').strip()
 		verification_index_request = self.request.get('verification_index')
 		verification_code = self.request.get('verification_code')
@@ -132,7 +133,10 @@ class MainPage(Handler):
 		verification_index_new = random.randint(0,15)
 		verification_index_chars = verification_index_list[verification_index_new]
 
-		cheque_balance, cheque_public_address = cryptotools.get_balance(cheque_ident_filtered)
+		if cheque_ident_requested:
+			cheque_balance, cheque_public_address = cryptotools.get_balance(cheque_ident_requested_filtered)
+		else:
+			cheque_balance, cheque_public_address = cryptotools.get_balance(cheque_ident_filtered)
 
 		if cheque_balance and (cheque_balance > 0):
 			service_fee, transaction_fee = cryptotools.get_fees(cheque_balance)
@@ -214,8 +218,8 @@ class MainPage(Handler):
 						show_service_fee = False
 						cheque_balance = '{:.8f}'.format(0.0)
 						self.render('main.html',
-									cheque_ident = cheque_ident_formatted,
-									cheque_ident_requested = cheque_ident_formatted,
+									cheque_ident = cheque_ident_requested_formatted,
+									cheque_ident_requested = cheque_ident_requested_formatted,
 									cheque_public_address = cheque_public_address,
 									cheque_balance = cheque_balance,
 									show_payout_details = show_payout_details,
@@ -224,8 +228,8 @@ class MainPage(Handler):
 						return
 					else:
 						self.render('main.html',
-									cheque_ident = cheque_ident_formatted,
-									cheque_ident_requested = cheque_ident_formatted,
+									cheque_ident = cheque_ident_requested_formatted,
+									cheque_ident_requested = cheque_ident_requested_formatted,
 									cheque_public_address = cheque_public_address,
 									cheque_balance = cheque_balance,
 									verification_index_chars = verification_index_chars,

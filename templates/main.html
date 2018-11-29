@@ -63,7 +63,7 @@ table, tr, td {
   <script>
   function onSubmit(token) {
      document.getElementById("redeem_button").disabled = true;
-	   document.getElementById("check_balance_form").submit();
+	   document.getElementById("check_details_form").submit();
   }
   </script>
 
@@ -97,7 +97,7 @@ table, tr, td {
       <tr>
         <td>
           <span class="label">Cheque ID:</span><br>
-          <input type="text" style="font: 15px sans-serif; width: 95%;" name="cheque_ident" value="{{cheque_ident}}"> 
+          <input type="text" style="font: 15px sans-serif; width: 95%;" name="cheque_ident" value="{{cheque_ident}}">
         </td>
         <td valign="bottom">
           <input type="submit" name="check_balance" style="width: 95%;" value="Check balance">
@@ -113,7 +113,8 @@ table, tr, td {
     </table>
 
     <br>
-
+  </form>
+  <form id="check_details_form" method="POST" enctype="multipart/form-data" action="/">
 		{% if cheque_balance != None %}
       <br>
       <div class="centertable">
