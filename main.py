@@ -79,10 +79,10 @@ class PrintChequesPage(Handler):
 		# get cheques and images
 		cheque_dates = []
 		for i in range(NUMBER_OF_CHEQUES):
-			ident, verification_master, verification_shifts, cheque = cryptotools.generateCheque()
+			ident, verification_master, verification_shifts, private_key, cheque = cryptotools.generateCheque()
 			verification_chars, verification_bars = cryptotools.generate_chars_bars(verification_master, verification_shifts)
 			ident_formatted = ' '.join([ident[:5], ident[5:10], ident[10:]])
-			cheque_data = {'ident':ident_formatted, 'verification_chars':verification_chars, 'verification_bars':verification_bars, 'cheque':cheque}
+			cheque_data = {'ident':ident, 'ident_formatted':ident_formatted, 'verification_chars':verification_chars, 'verification_bars':verification_bars, 'private_key':private_key, 'cheque':cheque}
 			cheque_dates.append(cheque_data)
 
 		# render page
@@ -90,14 +90,21 @@ class PrintChequesPage(Handler):
 
 class MainPage(Handler):
 	def get(self):
-		# get ident
-		cheque_ident = self.request.get('q')
+		cheque_ident = self.request.get('cheque_ident')
+
+		if cheque_ident:
+			self.handle_request(self, True)
+			return
 
 		self.render('main.html',
 					cheque_ident = cheque_ident,
 					cheque_balance = None)
 
 	def post(self):
+		self.handle_request(self, False)
+		return
+
+	def handle_request(self, is_get_request, *args, **kwargs):
 		# get parameters
 		check_balance = self.request.get('check_balance')
 		redeem = self.request.get('redeem')
@@ -114,7 +121,7 @@ class MainPage(Handler):
 
 		recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify'
 		values = {'secret': "6LcsKHwUAAAAAB3UkPVyeRErujY0G7cgq7Z6UWqh", 'response': recaptcha_response}
-		
+
 		echange_rate_usd = cryptotools.get_exchange_rate_usd()
 
 		verification_index_list = []
@@ -141,7 +148,7 @@ class MainPage(Handler):
 			service_fee = '{:.8f}'.format(float(service_fee)/100000000)
 			transaction_fee = '{:.8f}'.format(float(transaction_fee)/100000000)
 			total_payout = '{:.8f}'.format(float(total_payout)/100000000)
-			
+
 		else:
 			show_cheque_balance = (cheque_balance is not None)
 			show_payout_details = False
@@ -154,8 +161,8 @@ class MainPage(Handler):
 			service_fee = '{:.8f}'.format(0.0)
 			transaction_fee = '{:.8f}'.format(0.0)
 			total_payout = '{:.8f}'.format(0.0)
-			
-		if check_balance:
+
+		if check_balance or is_get_request:
 			# render main page
 			if show_cheque_balance:
 				self.render('main.html',
@@ -182,7 +189,7 @@ class MainPage(Handler):
 				self.render('main.html',
 						cheque_ident = cheque_ident,
 						cheque_balance = None,
-						error_message_id = error_message_id)	
+						error_message_id = error_message_id)
 				return
 		else:
 			# check recaptcha

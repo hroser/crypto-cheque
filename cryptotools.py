@@ -67,7 +67,6 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
 
   try:
     unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference='low')
-    unsigned_tx['tx']['preference'] = 'medium'
     logging.debug('unsigned_tx = ' + str(unsigned_tx))
   except Exception as e:
     logging.error(e)
@@ -117,8 +116,11 @@ def get_fees(balance):
     return 0, 0
 
   try:
+    high_fees = int(get_blockchain_overview()['high_fee_per_kb'])
     medium_fees = int(get_blockchain_overview()['medium_fee_per_kb'])
-    transaction_fee = int(medium_fees)
+    low_fees = int(get_blockchain_overview()['low_fee_per_kb'])
+    # transaction size with 1 input, 2 outputs is below 0.150kB
+    transaction_fee = int(0.18 * high_fees)
   except Exception as e:
     logging.error(e)
     return 0, 0
@@ -282,7 +284,7 @@ def generateCheque():
   cheque.verification_shifts = verification_shifts
   cheque.put()
 
-  return ident, verification_master, verification_shifts, cheque
+  return ident, verification_master, verification_shifts, key['private_key'], cheque
 
 
 def generate_chars_bars(verification_master, verification_shifts_string):

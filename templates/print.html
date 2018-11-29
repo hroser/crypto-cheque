@@ -93,18 +93,20 @@ white-space:pre;
 	<div style="width: 100%;">
         <div style="width: 68%; float:left">
 						<h2>Crypto Cheque</h2>
-            <h4>ID: {{ cheque_data['ident'] }}</h4>
+            <h4>ID: {{ cheque_data['ident_formatted'] }}</h4>
             <div class="data">
-To:   ___________________________________________________ Value: __________________<br><br><br>
-From: ___________________________________________________<br><br><br>
-Memo: ___________________________________________________<br><br><br>
-Date: _________________________________    Signature: _____________________________<br>
+To:   ________________________________________________________ Value: __________________<br><br><br>
+From: ________________________________________________________<br><br><br>
+Memo: ________________________________________________________<br><br><br>
+Date: __________________________________    Signature: _________________________________
             </div>
             <div class="strip">
-<b>VERIFICATION (ID and verification data are needed for redeeming, bitcoins can not be recovered otherwise):</b>
+VERIFICATION (ID and verification data on this cheque is needed for redeeming, bitcoins can not be recovered otherwise):
 
 {{cheque_data['verification_bars'][0]}}  {{cheque_data['verification_bars'][2]}}
 {{cheque_data['verification_bars'][1]}}  {{cheque_data['verification_bars'][3]}}
+
+PRIVATE KEY: {{cheque_data['private_key']}}
             </div>
             <br>
         </div>
@@ -112,13 +114,14 @@ Date: _________________________________    Signature: __________________________
         <div style="width: 20%; float:left">
         <center>
 					 <br>
-		   <p style="margin-bottom:5px; margin-top:0mm;"><small>DEPOSIT BTC:</small></p>
+		   <p style="margin-bottom:5px; margin-top:0mm;"><small>DEPOSIT TO:</small></p>
            <img src="http://api.qrserver.com/v1/create-qr-code/?size=80x80&data={{cheque_data['cheque'].public_address}}" alt="" title=""><br>
-           <span style="font-size: 6px !important;">{{cheque_data['cheque'].public_address}}</span><br><br>
-           <p style="margin-bottom:5px; margin-top:0mm;"><small>CHECK BALANCE:</small></p>
-           <img src="http://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://live.blockcypher.com/btc/address/{{cheque_data['cheque'].public_address}}/" alt="" title=""><br><br>
-           <p style="margin-bottom:3px; margin-top:0mm;"><small>REDEEM (1.5% fee):</small></p>
-		   <span style="font-size: 8px !important; margin-top:0mm;">www.crypto-cheque.com</span><br><br>
+           <span style="font-size: 6px !important;">Bitcoin address</span><br>
+           <span style="font-size: 6px !important;">{{cheque_data['cheque'].public_address}}</span><br><br><br>
+           <p style="margin-bottom:5px; margin-top:0mm;"><small>CHECK BALANCE / REDEEM:</small></p>
+           <img src="http://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://crypto-cheque.com/?cheque_ident={{cheque_data['ident']}}" alt="" title=""><br>
+           <!--<img src="http://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://live.blockcypher.com/btc/address/{{cheque_data['cheque'].public_address}}/" alt="" title=""><br>-->
+		   <span style="font-size: 8px !important; margin-top:3mm;">www.crypto-cheque.com</span><br><br>
         </center>
         </div>
 
