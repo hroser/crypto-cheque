@@ -89,7 +89,7 @@ table, tr, td {
   	</center>
 
 <br><br><br>
-	<form id="check_balance_form" method="POST" enctype="multipart/form-data">
+	<form id="check_balance_form" method="POST" enctype="multipart/form-data" action="/">
 
     <table class="inputtable">
     <col width="70%">
@@ -97,7 +97,7 @@ table, tr, td {
       <tr>
         <td>
           <span class="label">Cheque ID:</span><br>
-          <input type="text" style="font: 15px sans-serif; width: 95%;" name="cheque_ident" value="{{cheque_ident}}">
+          <input type="text" style="font: 15px sans-serif; width: 95%;" name="cheque_ident" value="{{cheque_ident}}"> 
         </td>
         <td valign="bottom">
           <input type="submit" name="check_balance" style="width: 95%;" value="Check balance">
@@ -231,7 +231,7 @@ table, tr, td {
 
 		<div class="centerinfo">
 		<br><br>
-		Crypto Cheques are basically paper wallets with a convenient way of redeeming. 
+		Crypto Cheques are basically paper wallets with a convenient way of redeeming.
 		For redeeming bitcoins from a cheque the cheque ID as well as the verification information on the paper cheque are necessarily needed (we store each private key encrypted based on this information).
 		<br><br>
 		<b style = "color:red;">PLEASE NOTE: It is not possible to recover any bitcoins if the information printed on the cheque is lost!</b>

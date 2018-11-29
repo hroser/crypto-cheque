@@ -11,6 +11,7 @@ import base64
 import logging
 import json
 import urllib2
+import math
 
 # blockcypher api
 from blockcypher import get_address_overview
@@ -120,7 +121,7 @@ def get_fees(balance):
     medium_fees = int(get_blockchain_overview()['medium_fee_per_kb'])
     low_fees = int(get_blockchain_overview()['low_fee_per_kb'])
     # transaction size with 1 input, 2 outputs is below 0.150kB
-    transaction_fee = int(0.18 * high_fees)
+    transaction_fee = int(math.ceil(0.2 * float(high_fees) * 0.01) * 100)
   except Exception as e:
     logging.error(e)
     return 0, 0

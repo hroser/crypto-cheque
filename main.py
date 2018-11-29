@@ -162,7 +162,7 @@ class MainPage(Handler):
 			transaction_fee = '{:.8f}'.format(0.0)
 			total_payout = '{:.8f}'.format(0.0)
 
-		if check_balance or is_get_request:
+		if check_balance or (is_get_request == True):
 			# render main page
 			if show_cheque_balance:
 				self.render('main.html',
