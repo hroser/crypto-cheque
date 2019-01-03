@@ -23,6 +23,7 @@ from blockcypher import get_blockchain_overview
 BLOCK_SIZE = 16
 SERVICE_FEE = 0.015
 SERVICE_FEE_LOWER_LIMIT = 10000
+LOW_PREFERENCE_LIMIT = 200000
 
 b58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
@@ -118,21 +119,15 @@ def get_fees(balance, public_address_sender):
   try:
 	inputs = [{'address': public_address_sender}]
 	outputs = [{'address': public_address_sender, 'value': -1}]
-	unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference='medium')
+	if (balance <= LOW_PREFERENCE_LIMIT):
+		pref = 'low'
+	else:
+		pref = 'medium'
+	unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference=pref)
 	transaction_fee = unsigned_tx['tx']['fees']
   except Exception as e:
-    logging.error(e)
-	
-  # if balance too low for medium priority, try with low priority
-  if (transaction_fee == 0):
-	try:
-		inputs = [{'address': public_address_sender}]
-		outputs = [{'address': public_address_sender, 'value': -1}]
-		unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference='low')
-		transaction_fee = unsigned_tx['tx']['fees']
-	except Exception as e:
-		logging.error(e)
-		return 0, 0
+	logging.error(e)
+	return 0, 0
 	
   if int(balance * SERVICE_FEE) < SERVICE_FEE_LOWER_LIMIT:
     service_fee = 0
