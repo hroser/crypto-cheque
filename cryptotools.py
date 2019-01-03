@@ -21,7 +21,7 @@ from blockcypher import broadcast_signed_transaction
 from blockcypher import get_blockchain_overview
 
 BLOCK_SIZE = 16
-SERVICE_FEE = 0.015
+SERVICE_FEE = 0.0
 SERVICE_FEE_LOWER_LIMIT = 1000
 
 b58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
