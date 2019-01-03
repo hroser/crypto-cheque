@@ -52,7 +52,7 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
 	service_fee, transaction_fee = get_fees(balance, public_address_sender)
 	
 	if (transaction_fee == 0):
-		return 103, 'Error: Balance too low for payout, not enough credit for transaction fee'
+		return 103, 'Balance too low for payout (not enough for network fee)'
 	
 	payout = int(balance - service_fee - transaction_fee)
 
@@ -114,6 +114,7 @@ def get_balance(ident):
   return address_overview['final_balance'], cheque.public_address
 
 def get_fees(balance, public_address_sender):
+  transaction_fee = 0
   try:
 	inputs = [{'address': public_address_sender}]
 	outputs = [{'address': public_address_sender, 'value': -1}]
@@ -121,7 +122,17 @@ def get_fees(balance, public_address_sender):
 	transaction_fee = unsigned_tx['tx']['fees']
   except Exception as e:
     logging.error(e)
-    return 0, 0
+	
+  # if balance too low for medium priority, try with low priority
+  if (transaction_fee == 0):
+	try:
+		inputs = [{'address': public_address_sender}]
+		outputs = [{'address': public_address_sender, 'value': -1}]
+		unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference='low')
+		transaction_fee = unsigned_tx['tx']['fees']
+	except Exception as e:
+		logging.error(e)
+		return 0, 0
 	
   if int(balance * SERVICE_FEE) < SERVICE_FEE_LOWER_LIMIT:
     service_fee = 0

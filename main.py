@@ -141,7 +141,7 @@ class MainPage(Handler):
 		if cheque_balance and (cheque_balance > 0):
 			service_fee, transaction_fee = cryptotools.get_fees(cheque_balance, cheque_public_address)
 			if (transaction_fee == 0):
-				error_message_transaction_fee = "Balance too low for payout, not enough credit for transaction fee."
+				error_message_transaction_fee = "Balance too low for payout (not enough for network fee)."
 				total_payout = 0
 			else:
 				error_message_transaction_fee = None
@@ -190,7 +190,8 @@ class MainPage(Handler):
 					transaction_fee_usd = transaction_fee_usd,
 					total_payout_usd = total_payout_usd,
 					show_payout_details = show_payout_details,
-					show_service_fee = show_service_fee,)
+					show_service_fee = show_service_fee,
+					error_message_transaction_fee = error_message_transaction_fee)
 			else:
 				if len(cheque_ident_filtered) == 15:
 					error_message_id = "ID not found"

@@ -144,13 +144,6 @@ table, tr, td {
 						<td align="right">{{transaction_fee}} BTC</td>
 						<td align="right">{% if transaction_fee_usd %}({{transaction_fee_usd}} USD){% endif %}</td>
 					</tr>
-					{% if error_message_transaction_fee %}
-					<tr>
-						<td><span class="error">{{error_message_transaction_fee}}</span><br></td>
-						<td></td>
-						<td></td>
-					</tr>
-					{% endif %}
 					<tr>
 						<td><b>Total payout:</b></td>
 						<td align="right"><b>{{total_payout}} BTC<b></td>
@@ -180,6 +173,7 @@ table, tr, td {
           <tr>
             <td>
             {% if error_message_address %}<span class="error">{{error_message_address}}</span><br>{% endif %}
+			{% if error_message_transaction_fee %}<span class="error">{{error_message_transaction_fee}}</span><br>{% endif %}
             </td>
             <td>
             </td>
