@@ -139,9 +139,13 @@ class MainPage(Handler):
 			cheque_balance, cheque_public_address = cryptotools.get_balance(cheque_ident_filtered)
 
 		if cheque_balance and (cheque_balance > 0):
-			transaction_fee = cryptotools.get_fees(cheque_public_address)
-			service_fee = 0
-			total_payout = cheque_balance - service_fee - transaction_fee
+			service_fee, transaction_fee = cryptotools.get_fees(cheque_balance, cheque_public_address)
+			if (transaction_fee == 0):
+				error_message_transaction_fee = "Balance too low for payout, not enough credit for transaction fee."
+				total_payout = 0
+			else:
+				error_message_transaction_fee = None
+				total_payout = cheque_balance - service_fee - transaction_fee
 			show_cheque_balance = True
 			show_payout_details = True
 			show_service_fee = (service_fee != 0)
@@ -158,6 +162,7 @@ class MainPage(Handler):
 			show_cheque_balance = (cheque_balance is not None)
 			show_payout_details = False
 			show_service_fee = False
+			error_message_transaction_fee = None
 			cheque_balance_usd = '{:.2f}'.format(0.0)
 			service_fee_usd = '{:.2f}'.format(0.0)
 			transaction_fee_usd = '{:.2f}'.format(0.0)

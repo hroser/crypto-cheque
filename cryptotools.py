@@ -21,8 +21,8 @@ from blockcypher import broadcast_signed_transaction
 from blockcypher import get_blockchain_overview
 
 BLOCK_SIZE = 16
-SERVICE_FEE = 0.0
-SERVICE_FEE_LOWER_LIMIT = 1000
+SERVICE_FEE = 0.015
+SERVICE_FEE_LOWER_LIMIT = 10000
 
 b58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
@@ -47,20 +47,28 @@ class Cheque(ndb.Model):
 def send_tx(private_key_sender, public_key_sender, public_address_sender, public_address_receiver):
   # get balance
   try:
-    addr_overview = get_address_overview(public_address_sender)
-    balance = int(addr_overview['final_balance'])
+	addr_overview = get_address_overview(public_address_sender)
+	balance = int(addr_overview['final_balance'])
+	service_fee, transaction_fee = get_fees(balance, public_address_sender)
+	
+	if (transaction_fee == 0):
+		return 103, 'Error: Balance too low for payout, not enough credit for transaction fee'
+	
+	payout = int(balance - service_fee - transaction_fee)
 
   except Exception as e:
     logging.error(e)
     return 102, 'Service error, please try again later (Error T102).'
-
+	
   # create unsigned transaction
   inputs = [{'address': public_address_sender}]
-  # payout: -1 sweep wallet
-  outputs = [{'address': public_address_receiver, 'value': -1}]
+  if service_fee > 0:
+    outputs = [{'address': public_address_receiver, 'value': payout}, {'address': addr_service_fee, 'value': service_fee}]
+  else:
+    outputs = [{'address': public_address_receiver, 'value': payout}]
 
   try:
-    unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference='medium')
+    unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference='low')
     logging.debug('unsigned_tx = ' + str(unsigned_tx))
   except Exception as e:
     logging.error(e)
@@ -105,16 +113,22 @@ def get_balance(ident):
     return None, None
   return address_overview['final_balance'], cheque.public_address
 
-def get_fees(public_address_sender):
+def get_fees(balance, public_address_sender):
   try:
 	inputs = [{'address': public_address_sender}]
 	outputs = [{'address': public_address_sender, 'value': -1}]
 	unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference='medium')
+	transaction_fee = unsigned_tx['tx']['fees']
   except Exception as e:
     logging.error(e)
-    return 0
+    return 0, 0
+	
+  if int(balance * SERVICE_FEE) < SERVICE_FEE_LOWER_LIMIT:
+    service_fee = 0
+  else:
+    service_fee = int(balance * SERVICE_FEE)   # lower limit for transaction is 546 satoshis
 
-  return unsigned_tx['tx']['fees']
+  return service_fee, transaction_fee
 
 def validate_btc_address(address):
   try:

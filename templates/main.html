@@ -144,6 +144,13 @@ table, tr, td {
 						<td align="right">{{transaction_fee}} BTC</td>
 						<td align="right">{% if transaction_fee_usd %}({{transaction_fee_usd}} USD){% endif %}</td>
 					</tr>
+					{% if error_message_transaction_fee %}
+					<tr>
+						<td><span class="error">{{error_message_transaction_fee}}</span><br></td>
+						<td></td>
+						<td></td>
+					</tr>
+					{% endif %}
 					<tr>
 						<td><b>Total payout:</b></td>
 						<td align="right"><b>{{total_payout}} BTC<b></td>
@@ -235,6 +242,8 @@ table, tr, td {
 		Crypto Cheques are disposable paper wallets with a convenient way of redeeming. We store each private key encrypted based on the ID and verification information on the paper cheque.
 		<br><br>
 		<b style = "color:red;">PLEASE NOTE: It is not possible to recover any bitcoins if the information printed on the cheque is lost!</b>
+		<br><br>
+		Payout fees: bitcoin network fee (depending on current mining fees) + service fee (max. 1.5%) 
 		<br><br>
 		Crypto-Cheque is open source: <a href="https://github.com/hroser/crypto-cheque" style="color: black;">https://github.com/hroser/crypto-cheque</a>
 		<br><br>
