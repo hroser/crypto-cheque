@@ -139,7 +139,8 @@ class MainPage(Handler):
 			cheque_balance, cheque_public_address = cryptotools.get_balance(cheque_ident_filtered)
 
 		if cheque_balance and (cheque_balance > 0):
-			service_fee, transaction_fee = cryptotools.get_fees(cheque_balance)
+			transaction_fee = cryptotools.get_fees(cheque_public_address)
+			service_fee = 0
 			total_payout = cheque_balance - service_fee - transaction_fee
 			show_cheque_balance = True
 			show_payout_details = True
@@ -217,11 +218,13 @@ class MainPage(Handler):
 						show_payout_details = False
 						show_service_fee = False
 						cheque_balance = '{:.8f}'.format(0.0)
+						cheque_balance_usd = '{:.2f}'.format(0.0)
 						self.render('main.html',
 									cheque_ident = cheque_ident_requested_formatted,
 									cheque_ident_requested = cheque_ident_requested_formatted,
 									cheque_public_address = cheque_public_address,
 									cheque_balance = cheque_balance,
+									cheque_balance_usd = cheque_balance_usd,
 									show_payout_details = show_payout_details,
 									show_service_fee = show_service_fee,
 									redeem_transaction = message)

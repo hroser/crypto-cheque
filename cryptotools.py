@@ -49,25 +49,18 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
   try:
     addr_overview = get_address_overview(public_address_sender)
     balance = int(addr_overview['final_balance'])
-    service_fee, transaction_fee = get_fees(balance)
 
-    if balance < (transaction_fee + service_fee + 1000):
-        return 103, 'Error: Balance too low for payout. Minimum payout amout is {:.8f} BTC.'.format(float(transaction_fee + service_fee + 1000)/100000000.0)
-
-    payout = int(balance - service_fee - transaction_fee)
   except Exception as e:
     logging.error(e)
     return 102, 'Service error, please try again later (Error T102).'
 
   # create unsigned transaction
   inputs = [{'address': public_address_sender}]
-  if service_fee > 0:
-    outputs = [{'address': public_address_receiver, 'value': payout}, {'address': addr_service_fee, 'value': service_fee}]
-  else:
-    outputs = [{'address': public_address_receiver, 'value': payout}]
+  # payout: -1 sweep wallet
+  outputs = [{'address': public_address_receiver, 'value': -1}]
 
   try:
-    unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference='low')
+    unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference='medium')
     logging.debug('unsigned_tx = ' + str(unsigned_tx))
   except Exception as e:
     logging.error(e)
@@ -112,26 +105,16 @@ def get_balance(ident):
     return None, None
   return address_overview['final_balance'], cheque.public_address
 
-def get_fees(balance):
-  if (balance is None) or (balance == 0):
-    return 0, 0
-
+def get_fees(public_address_sender):
   try:
-    high_fees = int(get_blockchain_overview()['high_fee_per_kb'])
-    medium_fees = int(get_blockchain_overview()['medium_fee_per_kb'])
-    low_fees = int(get_blockchain_overview()['low_fee_per_kb'])
-    # transaction size with 1 input, 2 outputs is below 0.150kB
-    transaction_fee = int(math.ceil(0.2 * float(high_fees) * 0.01) * 100)
+	inputs = [{'address': public_address_sender}]
+	outputs = [{'address': public_address_sender, 'value': -1}]
+	unsigned_tx = create_unsigned_tx(inputs=inputs, outputs=outputs, coin_symbol='btc', api_key=api_key, preference='medium')
   except Exception as e:
     logging.error(e)
-    return 0, 0
+    return 0
 
-  if int(balance * SERVICE_FEE) < SERVICE_FEE_LOWER_LIMIT:
-    service_fee = 0
-  else:
-    service_fee = int(balance * SERVICE_FEE)   # lower limit for transaction is 546 satoshis
-
-  return service_fee, transaction_fee
+  return unsigned_tx['tx']['fees']
 
 def validate_btc_address(address):
   try:
