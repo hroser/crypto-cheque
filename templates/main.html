@@ -187,7 +187,8 @@ table, tr, td {
         <col width="30%">
           <tr>
             <td>
-              <span class="label">Verification code
+              <span class="label">
+			    Verification code
                 {% if error_message_verification %}
                 <b style="color: red">{{verification_index_chars}}</b>:
                 {% else %}
@@ -195,7 +196,7 @@ table, tr, td {
                 {% endif %}
               </span><br>
               {% if verification_index_chars %}
-              <input type="text" style="font: 15px sans-serif; width: 95%;" name="verification_code" autocomplete="off" placeholder="Combine lines >>{{verification_index_chars[0]}} and >>{{verification_index_chars[1]}} on your cheque" value="{{verification_code}}">
+              <input type="text" style="font: 15px sans-serif; width: 95%;" name="verification_code" autocomplete="off" placeholder="Combine >>{{verification_index_chars[0]}} and >>{{verification_index_chars[1]}} for 6-letter code" value="{{verification_code}}"><br>
               {% else %}
               <input type="text" style="font: 15px sans-serif; width: 95%;" name="verification_code" autocomplete="off" value="{{verification_code}}">
               {% endif %}
