@@ -85,7 +85,7 @@ white-space:pre;
 <body onload="window.print();">
 
 <hr>
-<h2 align="center">!!! Print cheques only one time !!!</h2>
+<h2 align="center">!!! Print and use cheques only one time !!!</h2>
 
 	{% for cheque_data in cheque_dates %}
 
@@ -101,12 +101,13 @@ Memo: ________________________________________________________<br><br><br>
 Date: __________________________________    Signature: _________________________________
             </div>
             <div class="strip">
-VERIFICATION (ID and verification data on this cheque is needed for redeeming, bitcoins can not be recovered otherwise):
+VERIFICATION:
 
 {{cheque_data['verification_bars'][0]}}  {{cheque_data['verification_bars'][2]}}
 {{cheque_data['verification_bars'][1]}}  {{cheque_data['verification_bars'][3]}}
 
 #####################################  ONLY ACCEPT CHEQUES FROM PEOPLE YOU TRUST  #####################################
+############## PRIVATE KEY FOR RECOVERY {{cheque_data['private_key']}} ##############
 </div>
         <br>
         </div>
