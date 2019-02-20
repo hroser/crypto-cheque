@@ -85,7 +85,7 @@ white-space:pre;
 <body onload="window.print();">
 
 <hr>
-<h2 align="center">!!! Print and use cheques only one time !!!</h2>
+<h2 align="center">!!! Print cheques only one time !!!</h2>
 
 	{% for cheque_data in cheque_dates %}
 
@@ -106,8 +106,9 @@ VERIFICATION (ID and verification data on this cheque is needed for redeeming, b
 {{cheque_data['verification_bars'][0]}}  {{cheque_data['verification_bars'][2]}}
 {{cheque_data['verification_bars'][1]}}  {{cheque_data['verification_bars'][3]}}
 
-            </div>
-            <br>
+#####################################  ONLY ACCEPT CHEQUES FROM PEOPLE YOU TRUST  #####################################
+</div>
+        <br>
         </div>
 
         <div style="width: 20%; float:left">

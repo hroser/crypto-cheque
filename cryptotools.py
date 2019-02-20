@@ -76,13 +76,14 @@ def send_tx(private_key_sender, public_key_sender, public_address_sender, public
     return 104, 'Service error, please try again later (Error T104).'
 
   # sign transaction
-  privkey_list = [private_key_sender]
-  pubkey_list = [public_key_sender]
+  privkey_list = [private_key_sender for i in range(len(unsigned_tx['tx']['inputs']))]
+  pubkey_list = [public_key_sender for i in range(len(unsigned_tx['tx']['inputs']))]
   try:
     tx_signatures = make_tx_signatures(txs_to_sign=unsigned_tx['tosign'], privkey_list=privkey_list, pubkey_list=pubkey_list)
     logging.debug('tx_signatures = ' + str(tx_signatures))
   except Exception as e:
-    return 105, 'Verification failed'
+	logging.error(e)
+	return 105, 'Verification failed'
 
   if 'errors' in tx_signatures:
     return 106, 'Service error, please try again later (Error T106).'
