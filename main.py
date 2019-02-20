@@ -93,7 +93,7 @@ class MainPage(Handler):
 		cheque_ident = self.request.get('cheque_ident')
 
 		if cheque_ident:
-			self.handle_request(self, True)
+			self.handle_request('get')
 			return
 
 		self.render('main.html',
@@ -101,10 +101,10 @@ class MainPage(Handler):
 					cheque_balance = None)
 
 	def post(self):
-		self.handle_request(self, False)
+		self.handle_request('post')
 		return
 
-	def handle_request(self, is_get_request, *args, **kwargs):
+	def handle_request(self, request_type, *args, **kwargs):
 		# get parameters
 		check_balance = self.request.get('check_balance')
 		redeem = self.request.get('redeem')
@@ -172,7 +172,7 @@ class MainPage(Handler):
 			transaction_fee = '{:.8f}'.format(0.0)
 			total_payout = '{:.8f}'.format(0.0)
 
-		if check_balance or (is_get_request == True):
+		if check_balance or (request_type == 'get'):
 			# render main page
 			if show_cheque_balance:
 				self.render('main.html',
