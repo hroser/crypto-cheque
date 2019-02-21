@@ -34,7 +34,7 @@ base_index_characters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 keys_str = open('keys.json').read()
 keys = json.loads(keys_str)
 api_key = keys['blockcypher_apikey']
-addr_service_fee = keys['coinbase_addr_service_fee']
+addr_service_fee = keys['addr_service_fee']
 
 class Cheque(ndb.Model):
     """Models a cheque data object"""

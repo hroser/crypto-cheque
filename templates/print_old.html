@@ -5,14 +5,14 @@
 <style type="text/css">
 
 body {
-font: 10px monospace;
+font: 10px sans-serif;
 max-width: 800px;
 margin: 0 auto;
 }
 
 .title{
 width: 94%;
-font: 30px monospace;
+font: 30px sans-serif;
 font-weight: bold;
 text-align: center;
 margin-left: 3%;
@@ -51,7 +51,7 @@ white-space:pre;
 }
 
 .data {
-font-family: monospace;
+font-family: sans-serif;
 font-size: 9px;
 white-space:pre;
 }
@@ -95,10 +95,10 @@ white-space:pre;
 						<h2>Crypto Cheque</h2>
             <h4>ID: {{ cheque_data['ident_formatted'] }}</h4>
             <div class="data">
-To:   ____________________________________________________ Value: __________________<br><br><br>
-From: ____________________________________________________<br><br><br>
-Memo: ____________________________________________________<br><br><br>
-Date: ________________________________    Signature: _______________________________
+To:   ________________________________________________________ Value: __________________<br><br><br>
+From: ________________________________________________________<br><br><br>
+Memo: ________________________________________________________<br><br><br>
+Date: __________________________________    Signature: _________________________________
             </div>
             <div class="strip">
 {{cheque_data['verification_bars'][0]}}  {{cheque_data['verification_bars'][2]}}
