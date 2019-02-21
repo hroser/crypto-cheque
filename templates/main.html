@@ -30,8 +30,8 @@ font: 12px sans-serif;
 }
 
 .centertable {
-width: 70%;
-min-width: 420px;
+width: 75%;
+min-width: 450px;
 margin: 0 auto;
 }
 
@@ -119,22 +119,22 @@ table, tr, td {
       <br>
       <div class="centertable">
       <table class="table" style="width:100%">
-      <col width="35%">
       <col width="40%">
-			<col width="35%">
+      <col width="40%">
+			<col width="30%">
         <tr>
           <td>ID:</td>
           <td align="right">{{cheque_ident_requested}}</td>
         </tr>
         <tr>
-          <td>Balance {% if cheque_public_address %}(<a href="https://live.blockcypher.com/btc/address/{{cheque_public_address}}/" target="_blank" style="color: black;">details</a>){% endif %}:</td>
+          <td>Balance {% if cheque_public_address %}(<a href="https://live.blockcypher.com/btc/address/{{cheque_public_address}}/" target="_blank" style="color: black;">details/pending</a>){% endif %}:</td>
           <td align="right">{{cheque_balance}} BTC</td>
 					<td align="right">{% if cheque_balance_usd %}({{cheque_balance_usd}} USD){% endif %}</td>
         </tr>
         {% if show_payout_details %}
 					{% if show_service_fee %}
 					<tr>
-						<td>Service fee 1.5%:</td>
+						<td>Service fee 0.8%:</td>
 						<td align="right">{{service_fee}} BTC</td>
 						<td align="right">{% if service_fee_usd %}({{service_fee_usd}} USD){% endif %}</td>
 					</tr>
@@ -238,9 +238,9 @@ table, tr, td {
 		<br><br>
 		<b style = "color:red;">PLEASE NOTE: It is not possible to recover any bitcoins if the information printed on the cheque is lost!</b>
 		<br><br>
-		Payout fees: bitcoin network fee (depending on current mining fees) + service fee (max. 1.5%) 
+		Payout fees: bitcoin network fee (depending on current mining fees) + service fee (max. 0.8%) 
 		<br><br>
-		Crypto-Cheque is open source: <a href="https://github.com/hroser/crypto-cheque" style="color: black;">https://github.com/hroser/crypto-cheque</a>
+		Crypto-Cheque is open source: <a href="https://github.com/crypto-cheque/crypto-cheque" style="color: black;">https://github.com/crypto-cheque/crypto-cheque</a>
 		<br><br>
 		If there are any other issues with Crypto Cheque, please contact us: <a href="mailto:info@crypto-cheque.com" style="color: black;">info@crypto-cheque.com</a>
 		</div>

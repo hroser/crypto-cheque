@@ -21,9 +21,9 @@ from blockcypher import broadcast_signed_transaction
 from blockcypher import get_blockchain_overview
 
 BLOCK_SIZE = 16
-SERVICE_FEE = 0.015
+SERVICE_FEE = 0.008
 SERVICE_FEE_LOWER_LIMIT = 10000
-LOW_PREFERENCE_LIMIT = 200000
+LOW_PREFERENCE_LIMIT = 500000
 
 b58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
